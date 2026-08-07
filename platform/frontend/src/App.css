@@ -1,4 +1,4 @@
-/* ConfirmTkt Exact Pixel-Perfect Styling with Mulish Google Font & Perfect Alignment */
+/* ConfirmTkt Exact Pixel-Perfect Styling with Mulish Google Font & Complete Homepage Details */
 @import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800;900&display=swap');
 
 :root {
@@ -103,7 +103,7 @@ body {
 /* Hero Section */
 .ct-hero-section {
   background: #ffffff;
-  padding: 3.5rem 1rem 4rem 1rem;
+  padding: 3.5rem 1rem 3rem 1rem;
   text-align: center;
   position: relative;
 }
@@ -123,7 +123,7 @@ body {
   margin-bottom: 2.5rem;
 }
 
-/* SEARCH CONTAINER CONTAINER MATCHING USER SCREENSHOT WITH 0 OVERLAP OR TEXT TRUNCATION */
+/* Search Box Container */
 .ct-search-container {
   max-width: 880px;
   margin: 0 auto;
@@ -195,7 +195,7 @@ body {
   width: 100%;
 }
 
-/* SWAP BUTTON OVERLAPPING VERTICAL DIVIDER LINE PERFECTLY WITH ZERO TEXT OVERLAP */
+/* SWAP BUTTON OVERLAPPING VERTICAL DIVIDER LINE */
 .ct-swap-overlap-btn {
   position: absolute;
   left: 50%;
@@ -276,7 +276,7 @@ body {
 .ct-dropdown-input {
   width: 100%;
   padding: 0.65rem 1rem;
-  border: 1.5.px solid var(--ct-green);
+  border: 1.5px solid var(--ct-green);
   border-radius: 20px;
   font-size: 0.85rem;
   outline: none;
@@ -386,6 +386,219 @@ body {
   background: var(--ct-green);
   color: var(--ct-white);
   font-weight: 900;
+}
+
+/* Features Section ("Why Book Train Tickets With Confirmtkt?") */
+.ct-features-section {
+  padding: 3.5rem 1rem;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.ct-section-heading {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ct-text-dark);
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.ct-features-grid-clean {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem 3.5rem;
+}
+
+.ct-feat-item {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.ct-feat-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--ct-green-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--ct-green);
+  font-weight: 800;
+}
+
+.ct-feat-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ct-text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.ct-feat-desc {
+  font-size: 0.85rem;
+  color: var(--ct-text-muted);
+  line-height: 1.5;
+}
+
+/* RCB Partner Banner */
+.ct-rcb-banner-box {
+  background: linear-gradient(90deg, #1c1917 0%, #292524 100%);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 1.75rem 2.25rem;
+  max-width: 1080px;
+  margin: 0 auto 3rem auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.ct-rcb-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.ct-rcb-sub {
+  font-size: 0.85rem;
+  color: #a8a29e;
+  margin-top: 0.25rem;
+}
+
+/* Informational Content Container */
+.ct-info-container {
+  max-width: 1080px;
+  margin: 0 auto 3rem auto;
+  background: var(--ct-white);
+  border: 1px solid var(--ct-border);
+  border-radius: 16px;
+  padding: 2.25rem;
+}
+
+.ct-info-h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--ct-text-dark);
+  margin-bottom: 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2.5px solid var(--ct-green);
+  display: inline-block;
+}
+
+.ct-info-h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ct-text-dark);
+  margin: 1.5rem 0 0.5rem 0;
+}
+
+.ct-info-text {
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* FAQ Collapsible Cards */
+.ct-faq-card {
+  border-bottom: 1px solid var(--ct-border);
+  padding: 1rem 0;
+}
+
+.ct-faq-q {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--ct-text-dark);
+  margin-bottom: 0.35rem;
+}
+
+.ct-faq-a {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* Top Routes Grid */
+.ct-routes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.ct-route-card {
+  background: #f8fafc;
+  border: 1px solid var(--ct-border);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+.ct-route-dest {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--ct-text-dark);
+  margin-bottom: 0.35rem;
+}
+
+.ct-route-links {
+  font-size: 0.8rem;
+  color: var(--ct-green);
+  font-weight: 700;
+}
+
+/* ConfirmTkt Pure White Footer */
+.ct-footer {
+  background: #ffffff;
+  border-top: 1px solid var(--ct-border);
+  padding: 3rem 2rem 1.5rem 2rem;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.ct-footer-grid {
+  max-width: 1080px;
+  margin: 0 auto 2rem auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2rem;
+}
+
+.ct-footer-title {
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.ct-footer-list {
+  list-style: none;
+}
+
+.ct-footer-list li {
+  margin-bottom: 0.5rem;
+}
+
+.ct-footer-list a {
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.15s;
+}
+
+.ct-footer-list a:hover {
+  color: var(--ct-green);
+}
+
+.ct-footer-bottom {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ct-border);
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.8rem;
 }
 
 /* Modal Overlay for Login / Register */
