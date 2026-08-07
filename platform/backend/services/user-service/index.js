@@ -26,17 +26,27 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: 'BAD_REQUEST', message: 'Email, password, and name required' });
   }
 
+  // Validate Email Format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'BAD_REQUEST', message: 'Invalid email format' });
+  }
+
+  // Rule: Any user registering with a .in domain email (e.g. user@gmail.in, admin@company.in) gets Admin Role
+  const isDotInDomain = email.toLowerCase().trim().endsWith('.in');
+  const userRole = isDotInDomain ? 'admin' : 'user';
+
   try {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
     const result = await pool.query(
       'INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, $4) RETURNING id, email, name, role',
-      [email, password_hash, name, 'user']
+      [email.toLowerCase().trim(), password_hash, name, userRole]
     );
 
     const user = result.rows[0];
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
 
     res.status(201).json({ user, token });
   } catch (err) {
@@ -56,7 +66,7 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await pool.query('SELECT * FROM users WHERE LOWER(email) = $1', [email.toLowerCase().trim()]);
     if (result.rows.length === 0) {
       return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Invalid email or password' });
     }
@@ -67,7 +77,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
     res.json({
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
       token

@@ -1,12 +1,13 @@
-/* ConfirmTkt Exact Pixel-Perfect Styling (Zero Emojis, Pure SVG/Clean Typography) */
+/* ConfirmTkt Exact Pixel-Perfect Styling with Mulish Google Font & Perfect Alignment */
+@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800;900&display=swap');
+
 :root {
-  --ct-green: #41af5d;
-  --ct-green-hover: #379c52;
-  --ct-green-light: #e8f5ed;
-  --ct-green-tint: #dcf0e2;
+  --ct-green: #3aa459;
+  --ct-green-hover: #2f8949;
+  --ct-green-light: #eaf6ee;
   --ct-text-dark: #212529;
   --ct-text-muted: #6c757d;
-  --ct-border: #e2e8f0;
+  --ct-border: #e5e7eb;
   --ct-bg-light: #f8fafc;
   --ct-white: #ffffff;
 }
@@ -20,15 +21,16 @@
 body {
   background-color: var(--ct-white);
   color: var(--ct-text-dark);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: 'Mulish', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Header Navbar - Pure White Background */
+/* Header - Pure White (No Flights/Hotels, Only Train Options & Auth) */
 .ct-header {
   background: var(--ct-white);
   border-bottom: 1px solid var(--ct-border);
-  padding: 0.85rem 3rem;
+  padding: 0.85rem 4rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -44,18 +46,25 @@ body {
   cursor: pointer;
 }
 
-.ct-logo-img {
-  height: 34px;
+.ct-logo-text {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #1e293b;
+  letter-spacing: -0.5px;
+}
+
+.ct-logo-green {
+  color: var(--ct-green);
 }
 
 .ct-nav-links {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 2.25rem;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.5px;
-  color: #4b5563;
+  color: #475569;
 }
 
 .ct-nav-item {
@@ -68,29 +77,43 @@ body {
   color: var(--ct-green);
 }
 
-.ct-login-btn {
+.ct-user-badge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  font-weight: 700;
-  color: #374151;
+  font-weight: 800;
+  color: #1e293b;
+  background: #f1f5f9;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
 }
 
-/* Hero Section with Stadium Background Watermark */
+.ct-admin-tag {
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.35rem;
+  text-transform: uppercase;
+}
+
+/* Hero Section */
 .ct-hero-section {
-  background: linear-gradient(180deg, #ffffff 0%, #f4faf6 100%);
-  padding: 3rem 1rem 4rem 1rem;
+  background: #ffffff;
+  padding: 3.5rem 1rem 4rem 1rem;
   text-align: center;
   position: relative;
-  border-bottom: 1px solid var(--ct-border);
 }
 
 .ct-hero-title {
-  font-size: 2.1rem;
+  font-size: 2.2rem;
   font-weight: 800;
   color: var(--ct-green);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
+  letter-spacing: -0.5px;
 }
 
 .ct-hero-subtitle {
@@ -100,35 +123,42 @@ body {
   margin-bottom: 2.5rem;
 }
 
-/* Search Container Box (Exact Match to Screenshot 1 & 4) */
-.ct-search-box {
-  max-width: 920px;
+/* Search Box Container (Exact Alignment Matching User Screenshot) */
+.ct-search-container {
+  max-width: 860px;
   margin: 0 auto;
   background: var(--ct-white);
   border: 1px solid var(--ct-border);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   display: grid;
-  grid-template-columns: 2.2fr 0.3fr 2.2fr 2.2fr 2fr;
+  grid-template-columns: 1fr 1fr 200px;
   align-items: center;
   position: relative;
 }
 
-.ct-search-field {
-  padding: 1.1rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
+.ct-search-box-left {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   position: relative;
-  text-align: left;
   border-right: 1px solid var(--ct-border);
 }
 
+.ct-search-field {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  cursor: pointer;
+  position: relative;
+  text-align: left;
+}
+
 .ct-field-icon {
-  width: 20px;
-  height: 20px;
-  opacity: 0.6;
+  width: 18px;
+  height: 18px;
+  opacity: 0.5;
+  flex-shrink: 0;
 }
 
 .ct-field-content {
@@ -143,25 +173,45 @@ body {
 }
 
 .ct-field-value {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.ct-swap-icon {
+/* SWAP BUTTON OVERLAPPING VERTICAL DIVIDER LINE EXACTLY IN MIDDLE */
+.ct-swap-overlap-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f3f4f6;
-  border: 1px solid var(--ct-border);
+  background: #ffffff;
+  border: 1px solid #d1d5db;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin: 0 auto;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   color: var(--ct-green);
-  font-weight: 800;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  transition: transform 0.2s;
+}
+
+.ct-swap-overlap-btn:hover {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+/* Right Section & CTA */
+.ct-search-box-right {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  align-items: center;
 }
 
 .ct-search-cta {
@@ -171,18 +221,20 @@ body {
   border-top-right-radius: 12px;
   border-bottom-right-radius: 12px;
   height: 100%;
-  font-size: 1.1rem;
-  font-weight: 800;
+  min-height: 60px;
+  font-size: 1rem;
+  font-weight: 900;
   cursor: pointer;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   transition: background 0.15s;
+  text-transform: uppercase;
 }
 
 .ct-search-cta:hover {
   background: var(--ct-green-hover);
 }
 
-/* Station Auto-Suggest Dropdown (Screenshot 4) */
+/* Station Dropdown Popover */
 .ct-dropdown {
   position: absolute;
   top: 100%;
@@ -190,8 +242,8 @@ body {
   width: 340px;
   background: var(--ct-white);
   border: 1px solid var(--ct-border);
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
   margin-top: 0.5rem;
   z-index: 600;
   padding: 1rem;
@@ -211,8 +263,9 @@ body {
 .ct-dropdown-section-title {
   font-size: 0.75rem;
   font-weight: 800;
-  color: #4b5563;
+  color: #64748b;
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
 }
 
 .ct-station-item {
@@ -226,7 +279,7 @@ body {
 }
 
 .ct-station-item:hover {
-  background: #f3f4f6;
+  background: #f8fafc;
 }
 
 .ct-station-code {
@@ -240,19 +293,19 @@ body {
   color: #6b7280;
 }
 
-/* Calendar Popover (Screenshot 3) */
+/* Multi-Month Working Calendar Popover */
 .ct-calendar-modal {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 120px;
   background: var(--ct-white);
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
   padding: 1.25rem;
   width: 320px;
   z-index: 600;
   margin-top: 0.5rem;
+  border: 1px solid var(--ct-border);
 }
 
 .ct-cal-header {
@@ -262,6 +315,19 @@ body {
   font-weight: 800;
   font-size: 0.95rem;
   margin-bottom: 1rem;
+}
+
+.ct-cal-nav {
+  cursor: pointer;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  user-select: none;
+  font-weight: 900;
+  color: var(--ct-green);
+}
+
+.ct-cal-nav:hover {
+  background: #f1f5f9;
 }
 
 .ct-cal-days {
@@ -277,214 +343,118 @@ body {
 .ct-cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.35rem;
+  gap: 0.25rem;
   text-align: center;
 }
 
 .ct-cal-date {
   padding: 0.5rem;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: 50%;
   cursor: pointer;
 }
 
 .ct-cal-date:hover {
-  background: #f3f4f6;
+  background: #f1f5f9;
 }
 
 .ct-cal-date.active {
   background: var(--ct-green);
   color: var(--ct-white);
-  font-weight: 800;
+  font-weight: 900;
 }
 
-/* Features Section ("Why Book Train Tickets With Confirmtkt?") */
-.ct-features-section {
-  padding: 3rem 1rem;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.ct-section-heading {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--ct-text-dark);
-  text-align: center;
-  margin-bottom: 2.5rem;
-}
-
-.ct-features-grid-clean {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem 3rem;
-}
-
-.ct-feat-item {
-  display: flex;
-  gap: 1.25rem;
-  align-items: flex-start;
-}
-
-.ct-feat-icon-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--ct-green-light);
+/* Modal Overlay for Login / Register */
+.ct-modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  z-index: 1000;
+}
+
+.ct-auth-modal {
+  background: var(--ct-white);
+  border-radius: 20px;
+  padding: 2.25rem;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.ct-auth-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.ct-auth-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+.ct-input-group {
+  margin-bottom: 1.1rem;
+  text-align: left;
+}
+
+.ct-input-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.ct-form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--ct-border);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+  font-family: inherit;
+}
+
+.ct-form-input:focus {
+  border-color: var(--ct-green);
+}
+
+.ct-auth-submit {
+  width: 100%;
+  background: var(--ct-green);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 0.85rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.15s;
+}
+
+.ct-auth-submit:hover {
+  background: var(--ct-green-hover);
+}
+
+.ct-auth-switch {
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.ct-auth-switch span {
   color: var(--ct-green);
   font-weight: 800;
-}
-
-.ct-feat-title {
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--ct-text-dark);
-  margin-bottom: 0.25rem;
-}
-
-.ct-feat-desc {
-  font-size: 0.85rem;
-  color: var(--ct-text-muted);
-  line-height: 1.5;
-}
-
-/* Train Search Results Page */
-.ct-results-container {
-  max-width: 1050px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-.ct-train-row-card {
-  background: var(--ct-white);
-  border: 1px solid var(--ct-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.ct-train-info-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.ct-train-num-name {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--ct-text-dark);
-}
-
-.ct-class-matrix {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.ct-class-box {
-  border: 1.5px solid var(--ct-border);
-  border-radius: 8px;
-  padding: 0.75rem;
   cursor: pointer;
-  background: var(--ct-white);
-}
-
-.ct-class-box.active {
-  border-color: var(--ct-green);
-  background: var(--ct-green-light);
-}
-
-.ct-class-name {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--ct-text-dark);
-}
-
-.ct-status-text {
-  font-size: 0.8rem;
-  font-weight: 800;
-  margin-top: 0.25rem;
-}
-
-.ct-status-avail { color: var(--ct-green); }
-.ct-status-wl { color: #d97706; }
-
-/* Coach & Berth Selection Grid (Clean Options) */
-.ct-berth-selection-container {
-  background: var(--ct-white);
-  border: 1px solid var(--ct-border);
-  border-radius: 12px;
-  padding: 1.75rem;
-  margin-top: 1.5rem;
-}
-
-.ct-passengers-control {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--ct-border);
-}
-
-.ct-pass-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--ct-border);
-  background: #f3f4f6;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.ct-coupe-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-.ct-berth-tile {
-  border: 1.5px solid var(--ct-border);
-  border-radius: 8px;
-  padding: 0.75rem 0.5rem;
-  text-align: center;
-  cursor: pointer;
-  background: var(--ct-white);
-  transition: all 0.15s;
-}
-
-.ct-berth-tile.selected {
-  border-color: var(--ct-green);
-  background: var(--ct-green-light);
-  box-shadow: 0 0 0 2px var(--ct-green);
-}
-
-.ct-berth-tile.held {
-  background: #fef9c3;
-  border-color: #ca8a04;
-  cursor: not-allowed;
-}
-
-.ct-berth-tile.booked {
-  background: #fee2e2;
-  border-color: #dc2626;
-  cursor: not-allowed;
-}
-
-.ct-berth-num {
-  font-size: 1rem;
-  font-weight: 800;
-}
-
-.ct-berth-code {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--ct-text-muted);
+  margin-left: 0.35rem;
 }
