@@ -1,4 +1,4 @@
--- IRCTC / Trainline Full-Scale Replica Schema Initializer (V1)
+-- ConfirmTkt Replica Schema Initializer (V1)
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- STATIONS
@@ -28,11 +28,13 @@ CREATE TABLE IF NOT EXISTS users (
     email           VARCHAR(255) UNIQUE NOT NULL,
     password_hash   VARCHAR(255) NOT NULL,
     name            VARCHAR(255) NOT NULL,
+    irctc_username  VARCHAR(100) DEFAULT 'confirmtkt_user',
+    mobile          VARCHAR(20) DEFAULT '9876543210',
     role            VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- VENUES (Required for compatibility with 05-database-design.md)
+-- VENUES
 CREATE TABLE IF NOT EXISTS venues (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            VARCHAR(255) NOT NULL,
@@ -62,6 +64,7 @@ CREATE TABLE IF NOT EXISTS seats (
     section         VARCHAR(50) NOT NULL DEFAULT '3A',
     quota           VARCHAR(20) NOT NULL DEFAULT 'TATKAL',
     price           NUMERIC(10,2) NOT NULL CHECK (price >= 0),
+    cnf_probability VARCHAR(20) DEFAULT 'CNF 98%',
     status          VARCHAR(20) NOT NULL DEFAULT 'available'
                     CHECK (status IN ('available', 'held', 'booked')),
     UNIQUE (event_id, coach, seat_label)
@@ -79,7 +82,7 @@ CREATE TABLE IF NOT EXISTS seat_holds (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- BOOKINGS (Electronic Reservation Slips)
+-- BOOKINGS (ConfirmTkt ERS Ticket)
 CREATE TABLE IF NOT EXISTS bookings (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     pnr_number        VARCHAR(20) UNIQUE NOT NULL,
@@ -88,6 +91,9 @@ CREATE TABLE IF NOT EXISTS bookings (
     passenger_name    VARCHAR(255),
     passenger_age     INTEGER,
     passenger_gender  VARCHAR(10),
+    berth_pref        VARCHAR(30) DEFAULT 'Lower Berth (LB)',
+    irctc_username    VARCHAR(100) DEFAULT 'confirmtkt_user',
+    free_cancellation BOOLEAN DEFAULT true,
     status            VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'cancelled')),
     idempotency_key   VARCHAR(255) UNIQUE NOT NULL,
     total_amount      NUMERIC(10,2) NOT NULL CHECK (total_amount >= 0),
@@ -109,7 +115,7 @@ CREATE TABLE IF NOT EXISTS payments (
     amount              NUMERIC(10,2) NOT NULL,
     status              VARCHAR(20) NOT NULL DEFAULT 'pending',
     provider_reference  VARCHAR(255),
-    payment_mode        VARCHAR(50) DEFAULT 'IRCTC_IPAY',
+    payment_mode        VARCHAR(50) DEFAULT 'CONFIRMTKT_UPI',
     created_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -134,7 +140,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- SEED DATA FOR FULL IRCTC REPLICA
+-- SEED DATA FOR CONFIRMTKT REPLICA
 DO $$
 DECLARE
     v_id UUID;
@@ -146,53 +152,53 @@ DECLARE
 BEGIN
     -- Seed Stations
     INSERT INTO stations (code, name, city) VALUES
-    ('NDLS', 'New Delhi Railway Station', 'New Delhi'),
-    ('MMCT', 'Mumbai Central Junction', 'Mumbai'),
-    ('HWH', 'Howrah Junction', 'Kolkata'),
-    ('SBC', 'KSR Bengaluru City Junction', 'Bengaluru'),
-    ('MAS', 'MGR Chennai Central', 'Chennai')
+    ('NDLS', 'New Delhi (NDLS)', 'New Delhi'),
+    ('MMCT', 'Mumbai Central (MMCT)', 'Mumbai'),
+    ('HWH', 'Howrah Jn (HWH)', 'Kolkata'),
+    ('SBC', 'KSR Bengaluru (SBC)', 'Bengaluru'),
+    ('MAS', 'Chennai Central (MAS)', 'Chennai')
     ON CONFLICT DO NOTHING;
 
     -- Seed Venue
     INSERT INTO venues (name, address, total_capacity)
-    VALUES ('IRCTC Northern Railway Hub', 'State Entry Road, New Delhi', 10000)
+    VALUES ('ConfirmTkt Partner Hub', 'Outer Ring Road, Bengaluru', 10000)
     RETURNING id INTO v_id;
 
     -- Seed Trains
     INSERT INTO trains (train_number, name, source_code, dest_code, departure_time, arrival_time, duration, runs_on)
-    VALUES ('12951', 'RAJDHANI EXPRESS', 'NDLS', 'MMCT', '16:55:00', '08:35:00', '15h 40m', 'DAILY')
+    VALUES ('12951', 'RAJDHANI EXP', 'NDLS', 'MMCT', '16:55:00', '08:35:00', '15h 40m', 'M T W T F S S')
     RETURNING id INTO t1_id;
 
     INSERT INTO trains (train_number, name, source_code, dest_code, departure_time, arrival_time, duration, runs_on)
-    VALUES ('22436', 'VANDE BHARAT EXPRESS', 'NDLS', 'HWH', '06:00:00', '14:30:00', '08h 30m', 'EXCEPT WED')
+    VALUES ('22436', 'VANDE BHARAT EXP', 'NDLS', 'HWH', '06:00:00', '14:30:00', '08h 30m', 'M T - T F S S')
     RETURNING id INTO t2_id;
 
     INSERT INTO trains (train_number, name, source_code, dest_code, departure_time, arrival_time, duration, runs_on)
-    VALUES ('12002', 'SHATABDI EXPRESS', 'NDLS', 'SBC', '06:15:00', '14:00:00', '07h 45m', 'DAILY')
+    VALUES ('12002', 'SHATABDI EXP', 'NDLS', 'SBC', '06:15:00', '14:00:00', '07h 45m', 'M T W T F S S')
     RETURNING id INTO t3_id;
 
     INSERT INTO trains (train_number, name, source_code, dest_code, departure_time, arrival_time, duration, runs_on)
-    VALUES ('12626', 'KERALA EXPRESS', 'NDLS', 'MAS', '20:10:00', '04:35:00', '32h 25m', 'DAILY')
+    VALUES ('12626', 'KERALA EXP', 'NDLS', 'MAS', '20:10:00', '04:35:00', '32h 25m', 'M T W T F S S')
     RETURNING id INTO t4_id;
 
-    -- Seed Trips/Events
+    -- Seed Events/Trips
     INSERT INTO events (venue_id, train_id, title, description, starts_at, status)
-    VALUES (v_id, t1_id, '12951 | RAJDHANI EXPRESS', 'New Delhi -> Mumbai Central', '2026-09-01 16:55:00+00', 'on_sale')
+    VALUES (v_id, t1_id, '12951 | RAJDHANI EXP', 'New Delhi -> Mumbai Central', '2026-09-01 16:55:00+00', 'on_sale')
     RETURNING id INTO e1_id;
 
     INSERT INTO events (venue_id, train_id, title, description, starts_at, status)
-    VALUES (v_id, t2_id, '22436 | VANDE BHARAT EXPRESS', 'New Delhi -> Howrah Junction', '2026-09-01 06:00:00+00', 'on_sale')
+    VALUES (v_id, t2_id, '22436 | VANDE BHARAT EXP', 'New Delhi -> Howrah Jn', '2026-09-01 06:00:00+00', 'on_sale')
     RETURNING id INTO e2_id;
 
-    -- Seed 72 Berths for Rajdhani Express (Coach B1)
+    -- Seed 72 Coach Berths (Coach B1)
     FOR i IN 1..72 LOOP
         b_type := b_types[((i - 1) % 8) + 1];
-        INSERT INTO seats (event_id, coach, seat_label, berth_type, section, quota, price, status)
-        VALUES (e1_id, 'B1', 'Berth ' || LPAD(i::text, 2, '0'), b_type, '3A', 'TATKAL', 2150.00, 'available');
+        INSERT INTO seats (event_id, coach, seat_label, berth_type, section, quota, price, cnf_probability, status)
+        VALUES (e1_id, 'B1', 'Berth ' || LPAD(i::text, 2, '0'), b_type, '3A', 'TATKAL', 2150.00, 'CNF 98%', 'available');
     END LOOP;
 
     -- Seed Default Passenger User
-    INSERT INTO users (email, password_hash, name, role)
-    VALUES ('passenger@irctc.co.in', '$2a$10$wK1L8zJ3C.11sXv1G3pDk.vYg4O7J1tT2rM8nQ9sR0uV1wX2yZ3a', 'Rahul Sharma', 'user')
+    INSERT INTO users (email, password_hash, name, irctc_username, mobile, role)
+    VALUES ('passenger@confirmtkt.com', '$2a$10$wK1L8zJ3C.11sXv1G3pDk.vYg4O7J1tT2rM8nQ9sR0uV1wX2yZ3a', 'Rahul Sharma', 'rahul_confirmtkt', '9876543210', 'user')
     ON CONFLICT (email) DO NOTHING;
 END $$;

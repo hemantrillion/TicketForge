@@ -16,21 +16,36 @@ function App() {
   const [payment, setPayment] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState('trains'); // 'trains' | 'passenger_modal' | 'payment_modal' | 'ers_ticket'
-  
-  // Search Form State
+  const [step, setStep] = useState('trains'); // 'trains' | 'passenger_modal' | 'ers_ticket'
+
+  // ConfirmTkt Search Form State
   const [fromStation, setFromStation] = useState('NDLS - New Delhi');
   const [toStation, setToStation] = useState('MMCT - Mumbai Central');
   const [quota, setQuota] = useState('TATKAL');
   const [selectedClass, setSelectedClass] = useState('3A');
-  const [passenger, setPassenger] = useState({ name: 'Rahul Sharma', age: '29', gender: 'Male', berthPref: 'Lower (LB)', mealPref: 'Veg' });
+  const [freeCancellation, setFreeCancellation] = useState(true);
+  const [passenger, setPassenger] = useState({
+    name: 'Rahul Sharma',
+    age: '29',
+    gender: 'Male',
+    berthPref: 'Lower Berth (LB)',
+    irctcUsername: 'rahul_confirmtkt',
+    mobile: '9876543210'
+  });
 
-  // Auto Login Default IRCTC Account
+  // Swap Stations Function
+  const handleSwapStations = () => {
+    const temp = fromStation;
+    setFromStation(toStation);
+    setToStation(temp);
+  };
+
+  // Auto Login Default ConfirmTkt Account
   useEffect(() => {
     const autoLogin = async () => {
       try {
         const res = await axios.post(`${API_BASE}/auth/login`, {
-          email: 'passenger@irctc.co.in',
+          email: 'passenger@confirmtkt.com',
           password: 'UserPassword123!'
         });
         setUser(res.data.user);
@@ -39,7 +54,7 @@ function App() {
       } catch (err) {
         try {
           const regRes = await axios.post(`${API_BASE}/auth/register`, {
-            email: 'passenger@irctc.co.in',
+            email: 'passenger@confirmtkt.com',
             password: 'UserPassword123!',
             name: 'Rahul Sharma'
           });
@@ -54,7 +69,7 @@ function App() {
     autoLogin();
   }, []);
 
-  // Fetch Train List
+  // Fetch ConfirmTkt Train List
   const fetchTrains = async () => {
     try {
       setLoading(true);
@@ -65,7 +80,7 @@ function App() {
         fetchBerths(res.data[0].id);
       }
     } catch (err) {
-      setError('Cannot connect to IRCTC Backend. Ensure Express server is running on port 5000.');
+      setError('Cannot connect to ConfirmTkt Backend. Ensure Express server is running on port 5000.');
     } finally {
       setLoading(false);
     }
@@ -108,13 +123,13 @@ function App() {
     }
   };
 
-  // Submit Reservation & Process Payment
+  // Submit ConfirmTkt Booking Transaction
   const handleConfirmReservation = async () => {
     if (!selectedSeat || !activeHold || !selectedEvent) return;
     setError('');
     setLoading(true);
 
-    const idempotencyKey = `tatkal_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const idempotencyKey = `confirmtkt_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
     try {
       // 1. Create Booking with PNR
@@ -125,7 +140,10 @@ function App() {
           seat_ids: [selectedSeat.id],
           passenger_name: passenger.name,
           passenger_age: parseInt(passenger.age),
-          passenger_gender: passenger.gender
+          passenger_gender: passenger.gender,
+          berth_pref: passenger.berthPref,
+          irctc_username: passenger.irctcUsername,
+          free_cancellation: freeCancellation
         },
         {
           headers: {
@@ -138,7 +156,7 @@ function App() {
       const createdBooking = bookingRes.data.booking || bookingRes.data;
       setBooking(createdBooking);
 
-      // 2. Submit Payment via IRCTC iPay
+      // 2. Process Payment via ConfirmTkt UPI
       const paymentRes = await axios.post(
         `${API_BASE}/payments`,
         {
@@ -153,7 +171,7 @@ function App() {
       setStep('ers_ticket');
       if (selectedEvent) fetchBerths(selectedEvent.id);
     } catch (err) {
-      setError(err.response?.data?.message || 'Reservation failed.');
+      setError(err.response?.data?.message || 'ConfirmTkt reservation failed.');
     } finally {
       setLoading(false);
     }
@@ -161,114 +179,157 @@ function App() {
 
   return (
     <div>
-      {/* Official IRCTC Header */}
-      <header className="top-header">
-        <div className="brand-container">
-          <span className="irctc-logo-badge">IRCTC</span>
-          <span className="brand-title">NextGen eTicketing System</span>
-        </div>
-        <div className="top-nav-links">
-          <span className="top-nav-item">🚆 TRAINS</span>
-          <span className="top-nav-item">📋 PNR STATUS</span>
-          <span className="top-nav-item">📊 CHARTS / VACANCY</span>
-          <span style={{ background: 'rgba(255,255,255,0.15)', padding: '0.3rem 0.75rem', borderRadius: '20px', fontSize: '0.8rem' }}>
-            💬 AskDISHA 2.0 AI
+      {/* ConfirmTkt Top Header */}
+      <header className="ct-navbar">
+        <div className="ct-brand">
+          <span className="ct-logo-badge">confirmtkt</span>
+          <span className="ct-irctc-partner">
+            🛡️ IRCTC Authorised Partner
           </span>
-          {user && <span style={{ color: 'var(--irctc-orange)', fontWeight: 800 }}>👤 {user.name}</span>}
+        </div>
+        <div className="ct-nav-items">
+          <span className="ct-nav-item active">🚆 Train Booking</span>
+          <span className="ct-nav-item">📋 PNR Status</span>
+          <span className="ct-nav-item">📍 Running Status</span>
+          <span className="ct-nav-item">📈 CNF Predictor</span>
+          <span style={{ background: 'rgba(0, 178, 89, 0.2)', color: 'var(--confirmtkt-green)', padding: '0.3rem 0.75rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 800 }}>
+            🛡️ Free Cancellation Active
+          </span>
+          {user && <span style={{ color: '#ffffff', fontWeight: 800 }}>👤 {user.name}</span>}
         </div>
       </header>
 
-      <div className="main-container">
+      <div className="ct-container">
         {error && (
-          <div className="train-card" style={{ background: '#fef2f2', borderColor: '#fca5a5', color: 'var(--irctc-red)', fontWeight: 700 }}>
+          <div className="ct-train-card" style={{ background: '#fef2f2', borderColor: '#fca5a5', color: '#dc2626', fontWeight: 700 }}>
             ⚠️ {error}
           </div>
         )}
 
-        {/* IRCTC Train Search Bar */}
-        <div className="search-widget">
-          <div className="form-group">
-            <label className="form-label">From Station</label>
-            <input className="form-input" value={fromStation} onChange={(e) => setFromStation(e.target.value)} />
+        {/* ConfirmTkt Hero Search Box */}
+        <div className="ct-hero-box">
+          <div className="ct-hero-title">
+            <span>Book IRCTC Train Tickets with 100% Free Cancellation</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--confirmtkt-green)', fontWeight: 700 }}>⚡ Instant Refund to Bank Account</span>
           </div>
-          <div className="form-group">
-            <label className="form-label">To Station</label>
-            <input className="form-input" value={toStation} onChange={(e) => setToStation(e.target.value)} />
+
+          <div className="ct-search-grid">
+            <div className="ct-field">
+              <label className="ct-label">From Station</label>
+              <input className="ct-input" value={fromStation} onChange={(e) => setFromStation(e.target.value)} />
+            </div>
+
+            <button className="ct-swap-btn" onClick={handleSwapStations}>⇄</button>
+
+            <div className="ct-field">
+              <label className="ct-label">To Station</label>
+              <input className="ct-input" value={toStation} onChange={(e) => setToStation(e.target.value)} />
+            </div>
+
+            <div className="ct-field">
+              <label className="ct-label">Journey Date</label>
+              <input className="ct-input" type="date" defaultValue="2026-09-01" />
+            </div>
+
+            <div className="ct-field">
+              <label className="ct-label">Quota</label>
+              <select className="ct-select" value={quota} onChange={(e) => setQuota(e.target.value)}>
+                <option value="TATKAL">⚡ TATKAL (10:00 AM Open)</option>
+                <option value="GENERAL">GENERAL</option>
+                <option value="PREMIUM TATKAL">PREMIUM TATKAL</option>
+                <option value="LADIES">LADIES</option>
+              </select>
+            </div>
+
+            <button className="ct-btn-search" onClick={fetchTrains}>SEARCH TRAINS</button>
           </div>
-          <div className="form-group">
-            <label className="form-label">Journey Date</label>
-            <input className="form-input" type="date" defaultValue="2026-09-01" />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Quota</label>
-            <select className="form-select" value={quota} onChange={(e) => setQuota(e.target.value)}>
-              <option value="TATKAL">⚡ TATKAL (Open 10:00 AM)</option>
-              <option value="GENERAL">GENERAL</option>
-              <option value="PREMIUM TATKAL">PREMIUM TATKAL</option>
-              <option value="LADIES">LADIES</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Class</label>
-            <select className="form-select" value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
-              <option value="3A">AC 3-Tier (3A)</option>
-              <option value="2A">AC 2-Tier (2A)</option>
-              <option value="1A">AC 1st Class (1A)</option>
-              <option value="SL">Sleeper (SL)</option>
-            </select>
-          </div>
-          <button className="btn-irctc" onClick={fetchTrains}>Modify Search</button>
         </div>
 
-        {/* Train Search Results List */}
+        {/* ConfirmTkt Value Proposition Strip */}
+        <div className="ct-value-bar">
+          <div className="ct-value-card">
+            <div className="ct-value-icon">🛡️</div>
+            <div>
+              <div className="ct-value-title">100% Free Cancellation</div>
+              <div className="ct-value-desc">Full refund on cancellation</div>
+            </div>
+          </div>
+          <div className="ct-value-card">
+            <div className="ct-value-icon">📈</div>
+            <div>
+              <div className="ct-value-title">ConfirmTkt Predictor</div>
+              <div className="ct-value-desc">AI Tatkal CNF chance score</div>
+            </div>
+          </div>
+          <div className="ct-value-card">
+            <div className="ct-value-icon">⚡</div>
+            <div>
+              <div className="ct-value-title">Instant Refunds</div>
+              <div className="ct-value-desc">Direct to UPI / Bank Account</div>
+            </div>
+          </div>
+          <div className="ct-value-card">
+            <div className="ct-value-icon">📞</div>
+            <div>
+              <div className="ct-value-title">24x7 Customer Support</div>
+              <div className="ct-value-desc">Dedicated booking assistance</div>
+            </div>
+          </div>
+        </div>
+
+        {/* ConfirmTkt Train Search Results */}
         {events.map((evt) => {
           const isSelected = selectedEvent?.id === evt.id;
           return (
-            <div key={evt.id} className={`train-card ${isSelected ? 'active' : ''}`} onClick={() => { setSelectedEvent(evt); fetchBerths(evt.id); }}>
-              <div className="train-header">
-                <div className="train-name">
+            <div key={evt.id} className={`ct-train-card ${isSelected ? 'active' : ''}`} onClick={() => { setSelectedEvent(evt); fetchBerths(evt.id); }}>
+              <div className="ct-train-title">
+                <div>
                   🚆 {evt.title}
-                  <span className="tatkal-badge">⚡ Tatkal Quota Active</span>
+                  <div className="ct-runs-on">Runs On: M T W T F S S | Superfast Express</div>
                 </div>
-                <span style={{ fontSize: '0.85rem', color: 'var(--irctc-green)', fontWeight: 800 }}>
-                  ✓ 100% Confirmation Probability
+                <span style={{ fontSize: '0.85rem', color: 'var(--confirmtkt-green)', fontWeight: 800 }}>
+                  ✓ ConfirmTkt Verified Route
                 </span>
               </div>
 
-              <div className="schedule-row">
-                <div className="time-box">
-                  <span className="time-big">16:55</span>
-                  <span className="station-sub">New Delhi (NDLS)</span>
+              <div className="ct-time-row">
+                <div>
+                  <span className="ct-time">16:55</span>
+                  <div className="ct-station">New Delhi (NDLS)</div>
                 </div>
-                <div className="duration-line">
-                  15h 40m • Direct
+                <div style={{ textAlign: 'center', flex: 1, color: 'var(--confirmtkt-green)', fontWeight: 800 }}>
+                  15h 40m • Direct Route
                 </div>
-                <div className="time-box">
-                  <span className="time-big">08:35</span>
-                  <span className="station-sub">Mumbai Central (MMCT)</span>
+                <div style={{ textAlign: 'right' }}>
+                  <span className="ct-time">08:35</span>
+                  <div className="ct-station">Mumbai Central (MMCT)</div>
                 </div>
               </div>
 
-              <div className="availability-grid">
-                <div className={`avail-pill ${selectedClass === '3A' ? 'selected' : ''}`}>
-                  <span className="class-title">AC 3-Tier (3A)</span>
-                  <span className="status-badge status-green">AVAILABLE-0042</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, marginTop: '0.25rem' }}>₹2,150</span>
+              <div className="ct-matrix">
+                <div className={`ct-matrix-card ${selectedClass === '3A' ? 'active' : ''}`}>
+                  <span className="ct-matrix-class">3A (AC 3 Tier)</span>
+                  <span className="ct-matrix-status ct-status-green">AVAILABLE - 0042</span>
+                  <span className="ct-prediction">CNF 98% High Chance</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 900, marginTop: '0.35rem' }}>₹2,150</span>
                 </div>
-                <div className="avail-pill">
-                  <span className="class-title">AC 2-Tier (2A)</span>
-                  <span className="status-badge status-orange">RAC-12</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, marginTop: '0.25rem' }}>₹3,100</span>
+                <div className="ct-matrix-card">
+                  <span className="ct-matrix-class">2A (AC 2 Tier)</span>
+                  <span className="ct-matrix-status ct-status-green">AVAILABLE - 0012</span>
+                  <span className="ct-prediction">CNF 95% High Chance</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 900, marginTop: '0.35rem' }}>₹3,100</span>
                 </div>
-                <div className="avail-pill">
-                  <span className="class-title">AC 1st Class (1A)</span>
-                  <span className="status-badge status-green">AVAILABLE-0008</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, marginTop: '0.25rem' }}>₹4,850</span>
+                <div className="ct-matrix-card">
+                  <span className="ct-matrix-class">1A (AC First)</span>
+                  <span className="ct-matrix-status ct-status-orange">WL-04</span>
+                  <span className="ct-prediction" style={{ background: '#fffbe6', color: '#b45309' }}>CNF 65% Medium</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 900, marginTop: '0.35rem' }}>₹4,850</span>
                 </div>
-                <div className="avail-pill">
-                  <span className="class-title">Sleeper (SL)</span>
-                  <span className="status-badge status-green">AVAILABLE-0110</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, marginTop: '0.25rem' }}>₹650</span>
+                <div className="ct-matrix-card">
+                  <span className="ct-matrix-class">SL (Sleeper)</span>
+                  <span className="ct-matrix-status ct-status-green">AVAILABLE - 0120</span>
+                  <span className="ct-prediction">CNF 99% High Chance</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 900, marginTop: '0.35rem' }}>₹650</span>
                 </div>
               </div>
             </div>
@@ -277,52 +338,52 @@ function App() {
 
         {/* Coach Layout & Berth Map Diagram */}
         {selectedEvent && (
-          <div className="coach-section">
-            <div className="coach-header">
+          <div className="ct-coach-container">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.2rem', color: 'var(--irctc-blue)', fontWeight: 800 }}>
-                  Coach B1 Berth Arrangement Diagram (72 Berths)
+                <h3 style={{ fontSize: '1.25rem', color: 'var(--confirmtkt-navy)', fontWeight: 800 }}>
+                  Coach B1 Berth Selection Grid (72 Berths)
                 </h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--irctc-text-muted)', marginTop: '0.2rem' }}>
-                  Click an available berth to lock it for 5 minutes (Redis SETNX lock active).
+                <p style={{ fontSize: '0.85rem', color: 'var(--confirmtkt-text-muted)', marginTop: '0.2rem' }}>
+                  Select an available berth to hold inventory for 5 minutes (Redis SETNX Lock Active).
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', fontWeight: 700 }}>
+              <div style={{ display: 'flex', gap: '1.25rem', fontSize: '0.85rem', fontWeight: 700 }}>
                 <span>🟢 Available</span>
-                <span>🟡 Held (5-Min Redis Lock)</span>
+                <span>🟡 Held (5-Min Lock)</span>
                 <span>🔴 Booked</span>
               </div>
             </div>
 
-            <div className="berths-grid">
+            <div className="ct-berth-grid">
               {seats.map((seat) => {
                 const isSelected = selectedSeat?.id === seat.id;
                 return (
                   <div
                     key={seat.id}
-                    className={`berth-box ${seat.status} ${isSelected ? 'selected' : ''}`}
+                    className={`ct-berth-box ${seat.status} ${isSelected ? 'selected' : ''}`}
                     onClick={() => handleHoldBerth(seat)}
                   >
-                    <div className="berth-no">{seat.seat_label.split(' ')[1] || seat.seat_label}</div>
-                    <div className="berth-tag">{seat.berth_type}</div>
+                    <div className="ct-berth-num">{seat.seat_label.split(' ')[1] || seat.seat_label}</div>
+                    <div className="ct-berth-type">{seat.berth_type}</div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Active Seat Lock Banner */}
+            {/* Active Lock Bar */}
             {activeHold && (
-              <div style={{ background: '#f0fdf4', border: '1px solid #86efac', padding: '1.25rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: 'var(--confirmtkt-green-light)', border: '1.5px solid var(--confirmtkt-green)', padding: '1.25rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h4 style={{ color: 'var(--irctc-green)', fontSize: '1.05rem', fontWeight: 800 }}>
-                    🔒 Berth Lock Active (Redis TTL: 300s)
+                  <h4 style={{ color: 'var(--confirmtkt-green)', fontSize: '1.05rem', fontWeight: 900 }}>
+                    🔒 Berth Locked in Redis (TTL: 300s)
                   </h4>
-                  <p style={{ fontSize: '0.85rem', color: '#1e293b', marginTop: '0.2rem' }}>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--confirmtkt-navy)', marginTop: '0.25rem' }}>
                     Berth <strong>{selectedSeat?.seat_label}</strong> reserved until <strong>{new Date(activeHold.expires_at).toLocaleTimeString()}</strong>.
                   </p>
                 </div>
-                <button className="btn-irctc" onClick={() => setStep('passenger_modal')}>
-                  Book Selected Berth & Continue →
+                <button className="ct-btn-search" style={{ margin: 0, padding: '0.75rem 1.5rem' }} onClick={() => setStep('passenger_modal')}>
+                  Book Selected Berth →
                 </button>
               </div>
             )}
@@ -330,109 +391,127 @@ function App() {
         )}
       </div>
 
-      {/* Passenger Details Drawer Modal */}
+      {/* ConfirmTkt Passenger Entry Modal */}
       {step === 'passenger_modal' && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3 style={{ color: 'var(--irctc-blue)', fontSize: '1.3rem', fontWeight: 800, marginBottom: '1rem' }}>
-              Passenger Details Entry
+        <div className="ct-modal-overlay">
+          <div className="ct-modal">
+            <h3 style={{ color: 'var(--confirmtkt-navy)', fontSize: '1.3rem', fontWeight: 900, marginBottom: '1rem' }}>
+              ConfirmTkt Passenger Details
             </h3>
 
-            <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <label className="form-label">Passenger Full Name</label>
+            <div className="ct-field" style={{ marginBottom: '1rem' }}>
+              <label className="ct-label">IRCTC Username</label>
               <input
-                className="form-input"
+                className="ct-input"
+                value={passenger.irctcUsername}
+                onChange={(e) => setPassenger({ ...passenger, irctcUsername: e.target.value })}
+              />
+            </div>
+
+            <div className="ct-field" style={{ marginBottom: '1rem' }}>
+              <label className="ct-label">Passenger Name</label>
+              <input
+                className="ct-input"
                 value={passenger.name}
                 onChange={(e) => setPassenger({ ...passenger, name: e.target.value })}
               />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">Age</label>
+              <div className="ct-field">
+                <label className="ct-label">Age</label>
                 <input
-                  className="form-input"
+                  className="ct-input"
                   value={passenger.age}
                   onChange={(e) => setPassenger({ ...passenger, age: e.target.value })}
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Gender</label>
-                <select className="form-select" value={passenger.gender} onChange={(e) => setPassenger({ ...passenger, gender: e.target.value })}>
+              <div className="ct-field">
+                <label className="ct-label">Gender</label>
+                <select className="ct-select" value={passenger.gender} onChange={(e) => setPassenger({ ...passenger, gender: e.target.value })}>
                   <option>Male</option>
                   <option>Female</option>
-                  <option>Transgender</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">Berth Preference</label>
-                <select className="form-select" value={passenger.berthPref} onChange={(e) => setPassenger({ ...passenger, berthPref: e.target.value })}>
-                  <option>Lower (LB)</option>
-                  <option>Middle (MB)</option>
-                  <option>Upper (UB)</option>
+              <div className="ct-field">
+                <label className="ct-label">Berth Preference</label>
+                <select className="ct-select" value={passenger.berthPref} onChange={(e) => setPassenger({ ...passenger, berthPref: e.target.value })}>
+                  <option>Lower Berth (LB)</option>
+                  <option>Middle Berth (MB)</option>
+                  <option>Upper Berth (UB)</option>
                   <option>Side Lower (SL)</option>
                   <option>Side Upper (SU)</option>
                 </select>
               </div>
             </div>
 
-            <div style={{ background: '#f8fafc', border: '1px solid var(--irctc-border)', padding: '1rem', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.85rem' }}>
-              <p><strong>Train:</strong> 12951 | RAJDHANI EXPRESS</p>
-              <p><strong>Coach & Berth:</strong> Coach B1, {selectedSeat?.seat_label}</p>
-              <p><strong>Total Fare:</strong> ₹2,150.00 (Base: ₹1,800 + Tatkal: ₹300 + GST: ₹50)</p>
+            {/* Free Cancellation Toggle */}
+            <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1rem', borderRadius: '10px', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong style={{ color: '#047857', fontSize: '0.9rem' }}>🛡️ Add Free Cancellation (@ ₹199)</strong>
+                <p style={{ fontSize: '0.75rem', color: '#065f46', marginTop: '0.2rem' }}>Get 100% full refund on cancellation (No IRCTC fee charged)</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={freeCancellation}
+                onChange={(e) => setFreeCancellation(e.target.checked)}
+                style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+              />
             </div>
 
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-              <button className="btn-blue" style={{ background: '#94a3b8' }} onClick={() => setStep('trains')}>
+              <button className="ct-btn-search" style={{ background: '#94a3b8', margin: 0 }} onClick={() => setStep('trains')}>
                 Back
               </button>
-              <button className="btn-irctc" onClick={handleConfirmReservation} disabled={loading}>
-                {loading ? 'Processing IRCTC Payment...' : 'Pay ₹2,150 via IRCTC iPay'}
+              <button className="ct-btn-search" style={{ margin: 0 }} onClick={handleConfirmReservation} disabled={loading}>
+                {loading ? 'Confirming Ticket...' : `Pay ₹${2150 + (freeCancellation ? 199 : 0)} via ConfirmTkt UPI`}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Electronic Reservation Slip (ERS Ticket Modal) */}
+      {/* ConfirmTkt ERS Ticket Confirmation Modal */}
       {step === 'ers_ticket' && booking && payment && (
-        <div className="modal-overlay">
-          <div className="modal-box" style={{ maxWidth: '650px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--irctc-blue)', paddingBottom: '0.75rem' }}>
+        <div className="ct-modal-overlay">
+          <div className="ct-modal" style={{ maxWidth: '650px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--confirmtkt-green)', paddingBottom: '0.75rem' }}>
               <div>
-                <span className="irctc-logo-badge">IRCTC</span>
-                <span style={{ fontWeight: 800, color: 'var(--irctc-blue)', marginLeft: '0.5rem' }}>Electronic Reservation Slip (ERS)</span>
+                <span className="ct-logo-badge">confirmtkt</span>
+                <span style={{ fontWeight: 800, color: 'var(--confirmtkt-navy)', marginLeft: '0.5rem' }}>Electronic Reservation Slip (ERS)</span>
               </div>
-              <span style={{ color: 'var(--irctc-green)', fontWeight: 900, fontSize: '1.1rem' }}>CNF (Confirmed)</span>
+              <span style={{ color: 'var(--confirmtkt-green)', fontWeight: 900, fontSize: '1.1rem' }}>CNF (Confirmed)</span>
             </div>
 
-            <div className="ers-ticket">
+            <div className="ct-ers-box">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                <p><strong>PNR Number:</strong> <span style={{ color: 'var(--irctc-blue)', fontWeight: 900 }}>{booking.pnr_number}</span></p>
+                <p><strong>PNR Number:</strong> <span style={{ color: 'var(--confirmtkt-green)', fontWeight: 900 }}>{booking.pnr_number}</span></p>
                 <p><strong>Train No & Name:</strong> 12951 / RAJDHANI EXP</p>
                 <p><strong>Quota:</strong> TATKAL</p>
-                <p><strong>Class:</strong> AC 3-Tier (3A)</p>
+                <p><strong>Class:</strong> AC 3 Tier (3A)</p>
                 <p><strong>From:</strong> NDLS (16:55)</p>
                 <p><strong>To:</strong> MMCT (08:35)</p>
               </div>
 
-              <div style={{ background: '#ffffff', border: '1px solid var(--irctc-border)', padding: '0.75rem', borderRadius: '6px', fontSize: '0.85rem' }}>
+              <div style={{ background: '#ffffff', border: '1px solid var(--confirmtkt-border)', padding: '0.85rem', borderRadius: '8px', fontSize: '0.85rem' }}>
                 <p><strong>Passenger:</strong> {passenger.name} ({passenger.age} yrs, {passenger.gender})</p>
+                <p><strong>IRCTC User:</strong> {passenger.irctcUsername}</p>
                 <p><strong>Booking Status:</strong> CNF / Coach B1 / Berth {selectedSeat?.seat_label}</p>
+                <p><strong>Free Cancellation Protection:</strong> {freeCancellation ? 'ENABLED (100% Refundable)' : 'DISABLED'}</p>
                 <p><strong>Transaction Ref:</strong> {payment.provider_reference}</p>
-                <p><strong>Total Fare Paid:</strong> ₹2,150.00</p>
+                <p><strong>Total Fare Paid:</strong> ₹{booking.total_amount}</p>
               </div>
             </div>
 
             <div style={{ textAlign: 'center' }}>
-              <button className="btn-irctc" onClick={() => {
+              <button className="ct-btn-search" style={{ margin: 0 }} onClick={() => {
                 setStep('trains');
                 setSelectedSeat(null);
                 setActiveHold(null);
                 setBooking(null);
                 setPayment(null);
               }}>
-                Book Another Tatkal Ticket
+                Book Another Ticket on ConfirmTkt
               </button>
             </div>
           </div>
