@@ -233,21 +233,31 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
   const [filterAvailableOnly, setFilterAvailableOnly] = useState(false);
   const [filterTimeSlot, setFilterTimeSlot] = useState('ALL'); // 'ALL' | 'EARLY' | 'MORNING' | 'AFTERNOON' | 'NIGHT'
 
-  // WORKING FILTER LOGIC
-  const filteredTrains = DUMMY_TRAINS.filter(train => {
-    if (filterAcOnly) {
-      const hasAc = train.classes.some(c => ['3A', '2A', '1A', 'CC', 'EC'].includes(c.code));
-      if (!hasAc) return false;
-    }
+  // PRECISE FILTER LOGIC FOR BOTH TRAINS AND INDIVIDUAL CLASS TILES
+  const filteredTrains = DUMMY_TRAINS.map(train => {
+    // Filter classes inside train
+    const matchingClasses = train.classes.filter(c => {
+      // AC Only Filter
+      if (filterAcOnly && !['3A', '2A', '1A', 'CC', 'EC'].includes(c.code)) {
+        return false;
+      }
+      // Available Only Filter
+      const st = selectedQuota === 'TATKAL' ? c.tatkalStatus : (selectedQuota === 'LADIES' ? c.ladiesStatus : c.generalStatus);
+      if (filterAvailableOnly && !st.includes('AVAILABLE')) {
+        return false;
+      }
+      return true;
+    });
 
-    if (filterAvailableOnly) {
-      const hasAvail = train.classes.some(c => {
-        const st = selectedQuota === 'TATKAL' ? c.tatkalStatus : (selectedQuota === 'LADIES' ? c.ladiesStatus : c.generalStatus);
-        return st.includes('AVAILABLE');
-      });
-      if (!hasAvail) return false;
-    }
+    return {
+      ...train,
+      visibleClasses: matchingClasses
+    };
+  }).filter(train => {
+    // Must have at least 1 matching class visible
+    if (train.visibleClasses.length === 0) return false;
 
+    // Departure Time Slot Filter
     if (filterTimeSlot === 'EARLY' && !(train.deptHour >= 0 && train.deptHour < 6)) return false;
     if (filterTimeSlot === 'MORNING' && !(train.deptHour >= 6 && train.deptHour < 12)) return false;
     if (filterTimeSlot === 'AFTERNOON' && !(train.deptHour >= 12 && train.deptHour < 18)) return false;
@@ -274,7 +284,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
           </div>
         </div>
 
-        {/* TEXT-ONLY QUOTA SELECTOR (ZERO EMOJIS) */}
+        {/* TEXT-ONLY QUOTA SELECTOR */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>Quota:</span>
           {[
@@ -423,9 +433,9 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
                   </div>
                 </div>
 
-                {/* CLASS MATRIX ROW */}
+                {/* CLASS MATRIX ROW (PROPERLY FILTERED TILES) */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                  {train.classes.map(cls => {
+                  {train.visibleClasses.map(cls => {
                     const statusText = selectedQuota === 'TATKAL' ? cls.tatkalStatus : (selectedQuota === 'LADIES' ? cls.ladiesStatus : cls.generalStatus);
                     const price = selectedQuota === 'TATKAL' ? cls.price + 350 : cls.price;
                     const isAvail = statusText.includes('AVAILABLE');
