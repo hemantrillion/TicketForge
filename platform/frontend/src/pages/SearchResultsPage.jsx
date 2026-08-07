@@ -2,29 +2,11 @@ import React, { useState } from 'react';
 
 const DUMMY_TRAINS = [
   {
-    id: '12951',
-    number: '12951',
-    name: 'MUMBAI RAJDHANI EXP',
-    days: 'M T W T F S S',
-    deptTime: '16:55',
-    deptHour: 16,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '15h 40m',
-    arrTime: '08:35',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    classes: [
-      { code: '3A', generalStatus: 'AVAILABLE - 0042', tatkalStatus: 'TATKAL AVAILABLE - 0012', ladiesStatus: 'LADIES AVAILABLE - 0006', cnf: 'CNF 98% High Chance', price: 2150 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0018', tatkalStatus: 'TATKAL AVAILABLE - 0004', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 3105 },
-      { code: '1A', generalStatus: 'AVAILABLE - 0006', tatkalStatus: 'TATKAL WL 01', ladiesStatus: 'LADIES WL 01', cnf: 'CNF 100% High Chance', price: 4950 },
-      { code: 'SL', generalStatus: 'NOT AVAILABLE', tatkalStatus: 'NOT AVAILABLE', ladiesStatus: 'NOT AVAILABLE', cnf: 'Low Chance', price: 780 }
-    ]
-  },
-  {
     id: '22436',
     number: '22436',
     name: 'VANDE BHARAT EXPRESS',
+    category: 'PREMIUM SEMI-HIGH SPEED',
+    categoryColor: '#7c3aed',
     days: 'M T W T F S -',
     deptTime: '06:00',
     deptHour: 6,
@@ -43,6 +25,8 @@ const DUMMY_TRAINS = [
     id: '12002',
     number: '12002',
     name: 'SHATABDI EXPRESS',
+    category: 'PREMIUM EXPRESS',
+    categoryColor: '#0284c7',
     days: 'M T W T F S S',
     deptTime: '06:15',
     deptHour: 6,
@@ -59,9 +43,95 @@ const DUMMY_TRAINS = [
     ]
   },
   {
+    id: '12953',
+    number: '12953',
+    name: 'AUGUST KRANTI RAJDHANI',
+    category: 'PREMIUM EXPRESS',
+    categoryColor: '#0284c7',
+    days: 'M T W T F S S',
+    deptTime: '07:55',
+    deptHour: 7,
+    deptStation: 'NDLS',
+    deptCity: 'New Delhi',
+    duration: '16h 05m',
+    arrTime: '00:00',
+    arrStation: 'MMCT',
+    arrCity: 'Mumbai Central',
+    classes: [
+      { code: '3A', generalStatus: 'AVAILABLE - 0038', tatkalStatus: 'TATKAL AVAILABLE - 0010', ladiesStatus: 'LADIES AVAILABLE - 0005', cnf: 'CNF 98% High Chance', price: 2180 },
+      { code: '2A', generalStatus: 'AVAILABLE - 0014', tatkalStatus: 'TATKAL AVAILABLE - 0004', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 3150 },
+      { code: '1A', generalStatus: 'AVAILABLE - 0004', tatkalStatus: 'TATKAL WL 01', ladiesStatus: 'LADIES WL 01', cnf: 'CNF 100% High Chance', price: 4980 }
+    ]
+  },
+  {
+    id: '12472',
+    number: '12472',
+    name: 'SWARAJ EXPRESS',
+    category: 'SUPERFAST EXPRESS',
+    categoryColor: '#2563eb',
+    days: '- T W - F S -',
+    deptTime: '08:40',
+    deptHour: 8,
+    deptStation: 'NDLS',
+    deptCity: 'New Delhi',
+    duration: '21h 30m',
+    arrTime: '06:10',
+    arrStation: 'BDTS',
+    arrCity: 'Mumbai Bandra',
+    classes: [
+      { code: 'SL', generalStatus: 'AVAILABLE - 0095', tatkalStatus: 'TATKAL AVAILABLE - 0025', ladiesStatus: 'LADIES AVAILABLE - 0012', cnf: 'CNF 100% High Chance', price: 680 },
+      { code: '3A', generalStatus: 'AVAILABLE - 0042', tatkalStatus: 'TATKAL AVAILABLE - 0012', ladiesStatus: 'LADIES AVAILABLE - 0006', cnf: 'CNF 97% High Chance', price: 1780 },
+      { code: '2A', generalStatus: 'AVAILABLE - 0010', tatkalStatus: 'TATKAL AVAILABLE - 0003', ladiesStatus: 'LADIES AVAILABLE - 0001', cnf: 'CNF 100% High Chance', price: 2560 }
+    ]
+  },
+  {
+    id: '12926',
+    number: '12926',
+    name: 'PASCHIM EXPRESS',
+    category: 'MAIL / EXPRESS',
+    categoryColor: '#475569',
+    days: 'M T W T F S S',
+    deptTime: '10:00',
+    deptHour: 10,
+    deptStation: 'NDLS',
+    deptCity: 'New Delhi',
+    duration: '23h 25m',
+    arrTime: '09:25',
+    arrStation: 'MMCT',
+    arrCity: 'Mumbai Central',
+    classes: [
+      { code: 'SL', generalStatus: 'AVAILABLE - 0110', tatkalStatus: 'TATKAL AVAILABLE - 0030', ladiesStatus: 'LADIES AVAILABLE - 0015', cnf: 'CNF 100% High Chance', price: 640 },
+      { code: '3A', generalStatus: 'AVAILABLE - 0050', tatkalStatus: 'TATKAL AVAILABLE - 0015', ladiesStatus: 'LADIES AVAILABLE - 0007', cnf: 'CNF 98% High Chance', price: 1710 },
+      { code: '2A', generalStatus: 'AVAILABLE - 0012', tatkalStatus: 'TATKAL AVAILABLE - 0004', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 2480 }
+    ]
+  },
+  {
+    id: '12951',
+    number: '12951',
+    name: 'MUMBAI RAJDHANI EXP',
+    category: 'PREMIUM EXPRESS',
+    categoryColor: '#0284c7',
+    days: 'M T W T F S S',
+    deptTime: '16:55',
+    deptHour: 16,
+    deptStation: 'NDLS',
+    deptCity: 'New Delhi',
+    duration: '15h 40m',
+    arrTime: '08:35',
+    arrStation: 'MMCT',
+    arrCity: 'Mumbai Central',
+    classes: [
+      { code: '3A', generalStatus: 'AVAILABLE - 0042', tatkalStatus: 'TATKAL AVAILABLE - 0012', ladiesStatus: 'LADIES AVAILABLE - 0006', cnf: 'CNF 98% High Chance', price: 2150 },
+      { code: '2A', generalStatus: 'AVAILABLE - 0018', tatkalStatus: 'TATKAL AVAILABLE - 0004', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 3105 },
+      { code: '1A', generalStatus: 'AVAILABLE - 0006', tatkalStatus: 'TATKAL WL 01', ladiesStatus: 'LADIES WL 01', cnf: 'CNF 100% High Chance', price: 4950 }
+    ]
+  },
+  {
     id: '12626',
     number: '12626',
     name: 'KERALA EXPRESS',
+    category: 'SUPERFAST EXPRESS',
+    categoryColor: '#2563eb',
     days: 'M T W T F S S',
     deptTime: '20:10',
     deptHour: 20,
@@ -81,6 +151,8 @@ const DUMMY_TRAINS = [
     id: '12259',
     number: '12259',
     name: 'SEALDAH DURONTO EXP',
+    category: 'PREMIUM EXPRESS',
+    categoryColor: '#0284c7',
     days: 'M - W T - S -',
     deptTime: '12:25',
     deptHour: 12,
@@ -92,32 +164,15 @@ const DUMMY_TRAINS = [
     arrCity: 'Howrah Jn',
     classes: [
       { code: '3A', generalStatus: 'AVAILABLE - 0055', tatkalStatus: 'TATKAL AVAILABLE - 0018', ladiesStatus: 'LADIES AVAILABLE - 0008', cnf: 'CNF 97% High Chance', price: 2240 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0022', tatkalStatus: 'TATKAL AVAILABLE - 0006', ladiesStatus: 'LADIES AVAILABLE - 0003', cnf: 'CNF 100% High Chance', price: 3210 },
-      { code: '1A', generalStatus: 'AVAILABLE - 0008', tatkalStatus: 'TATKAL WL 01', ladiesStatus: 'LADIES WL 01', cnf: 'CNF 100% High Chance', price: 5120 }
-    ]
-  },
-  {
-    id: '12424',
-    number: '12424',
-    name: 'DIBRUGARH RAJDHANI',
-    days: 'M T W T F S S',
-    deptTime: '16:20',
-    deptHour: 16,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '27h 40m',
-    arrTime: '20:00',
-    arrStation: 'GHY',
-    arrCity: 'Guwahati',
-    classes: [
-      { code: '3A', generalStatus: 'AVAILABLE - 0064', tatkalStatus: 'TATKAL AVAILABLE - 0022', ladiesStatus: 'LADIES AVAILABLE - 0010', cnf: 'CNF 99% High Chance', price: 2980 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0014', tatkalStatus: 'TATKAL AVAILABLE - 0005', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 4120 }
+      { code: '2A', generalStatus: 'AVAILABLE - 0022', tatkalStatus: 'TATKAL AVAILABLE - 0006', ladiesStatus: 'LADIES AVAILABLE - 0003', cnf: 'CNF 100% High Chance', price: 3210 }
     ]
   },
   {
     id: '12628',
     number: '12628',
     name: 'KARNATAKA EXPRESS',
+    category: 'SUPERFAST EXPRESS',
+    categoryColor: '#2563eb',
     days: 'M T W T F S S',
     deptTime: '21:15',
     deptHour: 21,
@@ -129,100 +184,7 @@ const DUMMY_TRAINS = [
     arrCity: 'KSR Bengaluru',
     classes: [
       { code: 'SL', generalStatus: 'AVAILABLE - 0145', tatkalStatus: 'TATKAL AVAILABLE - 0040', ladiesStatus: 'LADIES AVAILABLE - 0020', cnf: 'CNF 100% High Chance', price: 790 },
-      { code: '3A', generalStatus: 'AVAILABLE - 0048', tatkalStatus: 'TATKAL AVAILABLE - 0014', ladiesStatus: 'LADIES AVAILABLE - 0006', cnf: 'CNF 98% High Chance', price: 2080 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0012', tatkalStatus: 'TATKAL AVAILABLE - 0004', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 2990 }
-    ]
-  },
-  {
-    id: '12622',
-    number: '12622',
-    name: 'TAMIL NADU EXPRESS',
-    days: 'M T W T F S S',
-    deptTime: '22:30',
-    deptHour: 22,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '32h 40m',
-    arrTime: '07:10',
-    arrStation: 'MAS',
-    arrCity: 'Chennai Central',
-    classes: [
-      { code: 'SL', generalStatus: 'AVAILABLE - 0090', tatkalStatus: 'TATKAL AVAILABLE - 0025', ladiesStatus: 'LADIES AVAILABLE - 0012', cnf: 'CNF 100% High Chance', price: 760 },
-      { code: '3A', generalStatus: 'AVAILABLE - 0038', tatkalStatus: 'TATKAL AVAILABLE - 0012', ladiesStatus: 'LADIES AVAILABLE - 0005', cnf: 'CNF 97% High Chance', price: 1980 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0010', tatkalStatus: 'TATKAL AVAILABLE - 0003', ladiesStatus: 'LADIES AVAILABLE - 0001', cnf: 'CNF 100% High Chance', price: 2850 }
-    ]
-  },
-  {
-    id: '12925',
-    number: '12925',
-    name: 'PASCHIM EXPRESS',
-    days: 'M T W T F S S',
-    deptTime: '11:05',
-    deptHour: 11,
-    deptStation: 'MMCT',
-    deptCity: 'Mumbai Central',
-    duration: '22h 30m',
-    arrTime: '09:35',
-    arrStation: 'NDLS',
-    arrCity: 'New Delhi',
-    classes: [
-      { code: 'SL', generalStatus: 'AVAILABLE - 0110', tatkalStatus: 'TATKAL AVAILABLE - 0035', ladiesStatus: 'LADIES AVAILABLE - 0018', cnf: 'CNF 100% High Chance', price: 650 },
-      { code: '3A', generalStatus: 'AVAILABLE - 0045', tatkalStatus: 'TATKAL AVAILABLE - 0015', ladiesStatus: 'LADIES AVAILABLE - 0007', cnf: 'CNF 98% High Chance', price: 1720 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0015', tatkalStatus: 'TATKAL AVAILABLE - 0005', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 2510 }
-    ]
-  },
-  {
-    id: '12137',
-    number: '12137',
-    name: 'PUNJAB MAIL',
-    days: 'M T W T F S S',
-    deptTime: '19:35',
-    deptHour: 19,
-    deptStation: 'CSMT',
-    deptCity: 'Mumbai CSMT',
-    duration: '30h 15m',
-    arrTime: '01:50',
-    arrStation: 'FZR',
-    arrCity: 'Firozpur Cantt',
-    classes: [
-      { code: 'SL', generalStatus: 'AVAILABLE - 0130', tatkalStatus: 'TATKAL AVAILABLE - 0040', ladiesStatus: 'LADIES AVAILABLE - 0020', cnf: 'CNF 100% High Chance', price: 710 },
-      { code: '3A', generalStatus: 'AVAILABLE - 0050', tatkalStatus: 'TATKAL AVAILABLE - 0018', ladiesStatus: 'LADIES AVAILABLE - 0008', cnf: 'CNF 99% High Chance', price: 1890 }
-    ]
-  },
-  {
-    id: '12802',
-    number: '12802',
-    name: 'PURUSHOTTAM EXPRESS',
-    days: 'M T W T F S S',
-    deptTime: '22:40',
-    deptHour: 22,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '30h 30m',
-    arrTime: '05:10',
-    arrStation: 'PURI',
-    arrCity: 'Puri',
-    classes: [
-      { code: 'SL', generalStatus: 'AVAILABLE - 0080', tatkalStatus: 'TATKAL AVAILABLE - 0025', ladiesStatus: 'LADIES AVAILABLE - 0012', cnf: 'CNF 100% High Chance', price: 740 },
-      { code: '3A', generalStatus: 'AVAILABLE - 0030', tatkalStatus: 'TATKAL AVAILABLE - 0010', ladiesStatus: 'LADIES AVAILABLE - 0004', cnf: 'CNF 96% High Chance', price: 1940 }
-    ]
-  },
-  {
-    id: '12432',
-    number: '12432',
-    name: 'TRIVANDRUM RAJDHANI',
-    days: '- - W T - - S',
-    deptTime: '06:15',
-    deptHour: 6,
-    deptStation: 'NZM',
-    deptCity: 'Hazrat Nizamuddin',
-    duration: '41h 25m',
-    arrTime: '23:40',
-    arrStation: 'TVC',
-    arrCity: 'Thiruvananthapuram',
-    classes: [
-      { code: '3A', generalStatus: 'AVAILABLE - 0050', tatkalStatus: 'TATKAL AVAILABLE - 0016', ladiesStatus: 'LADIES AVAILABLE - 0008', cnf: 'CNF 99% High Chance', price: 3450 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0016', tatkalStatus: 'TATKAL AVAILABLE - 0005', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 4890 }
+      { code: '3A', generalStatus: 'AVAILABLE - 0048', tatkalStatus: 'TATKAL AVAILABLE - 0014', ladiesStatus: 'LADIES AVAILABLE - 0006', cnf: 'CNF 98% High Chance', price: 2080 }
     ]
   }
 ];
@@ -231,17 +193,13 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
   const [selectedQuota, setSelectedQuota] = useState('GENERAL');
   const [filterAcOnly, setFilterAcOnly] = useState(false);
   const [filterAvailableOnly, setFilterAvailableOnly] = useState(false);
-  const [filterTimeSlot, setFilterTimeSlot] = useState('ALL'); // 'ALL' | 'EARLY' | 'MORNING' | 'AFTERNOON' | 'NIGHT'
+  const [filterTimeSlot, setFilterTimeSlot] = useState('ALL');
 
-  // PRECISE FILTER LOGIC FOR BOTH TRAINS AND INDIVIDUAL CLASS TILES
   const filteredTrains = DUMMY_TRAINS.map(train => {
-    // Filter classes inside train
     const matchingClasses = train.classes.filter(c => {
-      // AC Only Filter
       if (filterAcOnly && !['3A', '2A', '1A', 'CC', 'EC'].includes(c.code)) {
         return false;
       }
-      // Available Only Filter
       const st = selectedQuota === 'TATKAL' ? c.tatkalStatus : (selectedQuota === 'LADIES' ? c.ladiesStatus : c.generalStatus);
       if (filterAvailableOnly && !st.includes('AVAILABLE')) {
         return false;
@@ -254,10 +212,8 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
       visibleClasses: matchingClasses
     };
   }).filter(train => {
-    // Must have at least 1 matching class visible
     if (train.visibleClasses.length === 0) return false;
 
-    // Departure Time Slot Filter
     if (filterTimeSlot === 'EARLY' && !(train.deptHour >= 0 && train.deptHour < 6)) return false;
     if (filterTimeSlot === 'MORNING' && !(train.deptHour >= 6 && train.deptHour < 12)) return false;
     if (filterTimeSlot === 'AFTERNOON' && !(train.deptHour >= 12 && train.deptHour < 18)) return false;
@@ -284,7 +240,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
           </div>
         </div>
 
-        {/* TEXT-ONLY QUOTA SELECTOR */}
+        {/* QUOTA SELECTOR */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>Quota:</span>
           {[
@@ -389,7 +345,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
           ) : (
             filteredTrains.map(train => (
               <div key={train.id} style={{ background: '#ffffff', borderRadius: '12px', padding: '1.5rem', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                {/* TRAIN TITLE ROW */}
+                {/* TRAIN TITLE ROW WITH REAL CATEGORY BADGE */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.75rem' }}>
                   <div>
                     <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{train.number} - {train.name}</span>
@@ -406,7 +362,9 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
                         LADIES QUOTA ACTIVE
                       </span>
                     )}
-                    <span style={{ fontSize: '0.75rem', color: '#2563eb', fontWeight: 700 }}>SUPERFAST • GUARANTEED REFUND</span>
+                    <span style={{ fontSize: '0.75rem', color: train.categoryColor, background: '#f1f5f9', padding: '0.25rem 0.65rem', borderRadius: '4px', fontWeight: 800 }}>
+                      {train.category}
+                    </span>
                   </div>
                 </div>
 
@@ -433,7 +391,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
                   </div>
                 </div>
 
-                {/* CLASS MATRIX ROW (PROPERLY FILTERED TILES) */}
+                {/* CLASS MATRIX ROW */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
                   {train.visibleClasses.map(cls => {
                     const statusText = selectedQuota === 'TATKAL' ? cls.tatkalStatus : (selectedQuota === 'LADIES' ? cls.ladiesStatus : cls.generalStatus);
