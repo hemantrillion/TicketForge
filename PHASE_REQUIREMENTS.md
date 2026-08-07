@@ -15,8 +15,8 @@ Any new idea during V1 development must be recorded in the Parking Lot in `docs/
 
 | Phase | Focus Area | Core Features | Freezing Status |
 |---|---|---|---|
-| **Phase 0** | Foundation Block | Postgres schema, Express microservices structure, single user browse -> hold -> pay -> confirm flow | **IN PROGRESS** |
-| **Phase 1** | Traffic Control (#1) | Nginx Load Balancer, 3 backend replicas, round-robin / least-connections, k6 load scenarios | *Pending Phase 0* |
+| **Phase 0** | Foundation Block | Postgres schema, Express microservices structure, single user browse -> hold -> pay -> confirm flow | **FROZEN & COMPLETE** ✅ |
+| **Phase 1** | Traffic Control (#1) | Nginx Load Balancer, 3 backend replicas, round-robin / least-connections, k6 load scenarios | **NEXT IN QUEUE** ⏳ |
 | **Phase 2** | Rate Limiter (#5) | Gateway Rate Limiter middleware (Token Bucket & Sliding Window), HTTP 429 responses | *Pending Phase 1* |
 | **Phase 3** | Concurrency Block | Redis TTL seat locking, tie-break rules, idempotency key database constraints | *Pending Phase 2* |
 | **Phase 4** | Deployment Safety (#3)| Nginx Blue-Green switch, Canary routing by user ID, manual dashboard rollback | *Pending Phase 3* |
