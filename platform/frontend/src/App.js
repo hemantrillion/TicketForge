@@ -4,6 +4,8 @@ import './App.css';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
+import SearchResultsPage from './pages/SearchResultsPage';
+import CoachSeatPage from './pages/CoachSeatPage';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -11,7 +13,7 @@ const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "Ju
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home'); // 'home' | 'schedule' | 'pnr' | 'running' | 'results' | 'berths'
+  const [currentPage, setCurrentPage] = useState('home'); // 'home' | 'results' | 'berths' | 'pnr' | 'running' | 'schedule'
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
 
@@ -38,6 +40,10 @@ function App() {
   const [showToDropdown, setShowToDropdown] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
 
+  // Selected Booking Details
+  const [selectedTrain, setSelectedTrain] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(null);
+
   // Refs for Outside Click Detection
   const searchContainerRef = useRef(null);
   const profileMenuRef = useRef(null);
@@ -45,14 +51,6 @@ function App() {
   // Working Multi-Month Calendar Navigation
   const [calYear, setCalYear] = useState(2026);
   const [calMonth, setCalMonth] = useState(7); // 0-indexed: 7 = August
-
-  // Train Data & Seat Selection
-  const [events, setEvents] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [seats, setSeats] = useState([]);
-  const [passengerCount, setPassengerCount] = useState(1);
-  const [selectedSeatIds, setSelectedSeatIds] = useState([]);
-  const [error, setError] = useState('');
 
   // Global Click Outside Handler
   useEffect(() => {
@@ -164,29 +162,16 @@ function App() {
     setShowProfileMenu(false);
   };
 
-  // Fetch Trains
-  const fetchTrains = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/events`);
-      setEvents(res.data);
-      if (res.data.length > 0) {
-        setSelectedEvent(res.data[0]);
-        fetchBerths(res.data[0].id);
-      }
-      setCurrentPage('results');
-    } catch (err) {
-      setError('Cannot connect to backend service.');
-    }
+  // Trigger Train Search
+  const fetchTrains = () => {
+    setCurrentPage('results');
   };
 
-  // Fetch Seats
-  const fetchBerths = async (eventId) => {
-    try {
-      const res = await axios.get(`${API_BASE}/events/${eventId}/seats`);
-      setSeats(res.data);
-    } catch (err) {
-      console.error('Fetch berths error:', err);
-    }
+  // Trigger Class Selection -> Open Coach Seat Page
+  const handleSelectClassForBooking = (train, cls) => {
+    setSelectedTrain(train);
+    setSelectedClass(cls);
+    setCurrentPage('berths');
   };
 
   // Multi-Month Calendar Calculations
@@ -229,6 +214,7 @@ function App() {
         handleLogout={handleLogout}
         setShowAuthModal={setShowAuthModal}
         setAuthMode={setAuthMode}
+        profileMenuRef={profileMenuRef}
       />
 
       {currentPage === 'home' && (
@@ -247,6 +233,28 @@ function App() {
           handleSwap={handleSwap}
           fetchTrains={fetchTrains}
           searchContainerRef={searchContainerRef}
+        />
+      )}
+
+      {currentPage === 'results' && (
+        <SearchResultsPage
+          fromStation={fromStation}
+          toStation={toStation}
+          displayDateStr={displayDateStr}
+          onSelectClassForBooking={handleSelectClassForBooking}
+          onBackToHome={() => setCurrentPage('home')}
+        />
+      )}
+
+      {currentPage === 'berths' && (
+        <CoachSeatPage
+          train={selectedTrain}
+          selectedClass={selectedClass}
+          fromStation={fromStation}
+          toStation={toStation}
+          displayDateStr={displayDateStr}
+          onBackToResults={() => setCurrentPage('results')}
+          user={user}
         />
       )}
 
