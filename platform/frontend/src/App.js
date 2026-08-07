@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
 
@@ -43,6 +43,10 @@ function App() {
   const [showToDropdown, setShowToDropdown] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
 
+  // Refs for Outside Click Detection
+  const searchContainerRef = useRef(null);
+  const profileMenuRef = useRef(null);
+
   // Working Multi-Month Calendar Navigation
   const [calYear, setCalYear] = useState(2026);
   const [calMonth, setCalMonth] = useState(7); // 0-indexed: 7 = August
@@ -54,6 +58,30 @@ function App() {
   const [passengerCount, setPassengerCount] = useState(1);
   const [selectedSeatIds, setSelectedSeatIds] = useState([]);
   const [error, setError] = useState('');
+
+  // Global Click Outside Handler to Close Any Open Dialog Box
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close Search Popovers (From, To, Calendar) if click is outside search container
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setShowFromDropdown(false);
+        setShowToDropdown(false);
+        setShowCalendar(false);
+      }
+      // Close Profile Menu if click is outside profile wrapper
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
 
   // Auto Check Local Token on Load
   useEffect(() => {
@@ -211,14 +239,13 @@ function App() {
           <span className={`ct-nav-item ${currentPage === 'schedule' ? 'active' : ''}`} onClick={() => setCurrentPage('schedule')}>TRAIN SCHEDULE</span>
           
           {user ? (
-            <div className="ct-user-badge-wrapper">
+            <div className="ct-user-badge-wrapper" ref={profileMenuRef}>
               <div className="ct-user-badge" onClick={() => setShowProfileMenu(!showProfileMenu)}>
                 <span>👤 {user.name}</span>
                 {user.role === 'admin' && <span className="ct-admin-tag">ADMIN</span>}
                 <span style={{ fontSize: '0.75rem', color: '#64748b' }}>▾</span>
               </div>
 
-              {/* USER PROFILE POPOVER MENU WITH RED LOG OUT BUTTON */}
               {showProfileMenu && (
                 <div className="ct-profile-popover" onClick={(e) => e.stopPropagation()}>
                   <div className="ct-profile-name">{user.name}</div>
@@ -246,7 +273,7 @@ function App() {
             <h1 className="ct-hero-title">Train Ticket Booking</h1>
             <p className="ct-hero-subtitle">Easy IRCTC Login</p>
 
-            <div className="ct-search-container">
+            <div className="ct-search-container" ref={searchContainerRef}>
               <div className="ct-search-box-left">
                 <div className="ct-from-box" onClick={() => { setShowFromDropdown(!showFromDropdown); setShowToDropdown(false); setShowCalendar(false); }}>
                   <svg className="ct-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
@@ -438,123 +465,24 @@ function App() {
             <button className="ct-search-cta" style={{ borderRadius: '8px', minHeight: 'auto', padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}>PLAY NOW</button>
           </section>
 
-          {/* COMPLETE RESTORED INFORMATIONAL SECTIONS & FAQS */}
           <section className="ct-info-container">
             <h2 className="ct-info-h2">IRCTC Ticket Booking on ConfirmTkt</h2>
             <p className="ct-info-text">
-              ConfirmTkt is one of the highest rated App to book IRCTC train tickets online. You can book a train ticket on ConfirmTkt App or website with your existing IRCTC login credentials or create a new one. Increase your chance of getting a Confirm train ticket with our best-in-market same-train alternates and prediction feature. IRCTC train enquiry and booking are backed by a unique and efficient algorithm that predicts your IRCTC PNR in seconds based on historical trends.
+              ConfirmTkt is one of the highest rated App to book IRCTC train tickets online. You can book a train ticket on ConfirmTkt App or website with your existing IRCTC login credentials or create a new one. Increase your chance of getting a Confirm train ticket with our best-in-market same-train alternates and prediction feature.
             </p>
-
-            <h3 className="ct-info-h3">IRCTC Booking Types</h3>
-            <p className="ct-info-text">
-              • <strong>IRCTC UTS (Unreserved Ticketing System)</strong>: Paperless ticketing app for unreserved coaches.<br/>
-              • <strong>IRCTC Full Tariff Rate (FTR)</strong>: Booking entire coaches or trains for tours/occasions.<br/>
-              • <strong>IRCTC General Booking</strong>: Advance train booking with prepone/postpone flexibility.<br/>
-              • <strong>IRCTC Tatkal Booking</strong>: Last-minute emergency tickets opening at 10:00 AM (AC) and 11:00 AM (Non-AC).<br/>
-              • <strong>IRCTC Ladies Quota</strong>: Reserved sleeper/3A berths for women traveling alone or with infants.
-            </p>
-
-            <h3 className="ct-info-h3">How to Book IRCTC Ticket and Use IRCTC Login on ConfirmTkt</h3>
-            <p className="ct-info-text">
-              1. Select source and destination stations.<br/>
-              2. Select date of journey and quota (General/Tatkal).<br/>
-              3. Select train from list of available express trains.<br/>
-              4. Select class (Sleeper, 3rd AC, 2nd AC, 1st AC).<br/>
-              5. Enter passenger details & berth preferences (Lower, Middle, Upper).<br/>
-              6. Enter mobile & email for e-ticket delivery.<br/>
-              7. Opt for Free Cancellation protection for 100% full refund.<br/>
-              8. Pay securely via ConfirmTkt UPI, Card, or NetBanking.<br/>
-              9. Enter IRCTC password credentials.<br/>
-              10. Receive instant e-Ticket (ERS Slip) via SMS and Email.
-            </p>
-
-            <h3 className="ct-info-h3">Valid ID Cards During Train Journey</h3>
-            <p className="ct-info-text">
-              Passengers must carry one original ID proof during the journey: Aadhaar Card, Passport, Voter ID Card, Driving License, PAN Card, Govt Photo ID, Bank Passbook with photo, Student ID, or Laminated Credit Card.
-            </p>
-
-            <h3 className="ct-info-h3">IRCTC Train Ticket Booking FAQ</h3>
-            <div className="ct-faq-card">
-              <div className="ct-faq-q">Q) What is TATKAL Booking in IRCTC and how is it done?</div>
-              <div className="ct-faq-a">A: Tatkal bookings are meant for last-minute travel. AC Tatkal opens at 10:00 AM and Non-AC Tatkal opens at 11:00 AM 1 day prior to journey departure date. Confirmed Tatkal tickets are non-refundable.</div>
-            </div>
-            <div className="ct-faq-card">
-              <div className="ct-faq-q">Q) What is the maximum number of tickets allowed per booking?</div>
-              <div className="ct-faq-a">A: Up to 6 passengers per booking in General Quota, and maximum 4 passengers per booking under Tatkal Quota.</div>
-            </div>
-            <div className="ct-faq-card">
-              <div className="ct-faq-q">Q) How does ConfirmTkt increase my chance of getting a confirmed ticket?</div>
-              <div className="ct-faq-a">A: ConfirmTkt uses historical data algorithms to calculate CNF prediction scores and suggests same-train alternate boarding points to guarantee a seat.</div>
-            </div>
-
-            <h3 className="ct-info-h3">Top Train Routes in India</h3>
-            <div className="ct-routes-grid">
-              <div className="ct-route-card">
-                <div className="ct-route-dest">Trains to Bengaluru</div>
-                <div className="ct-route-links">via Chennai • Mysore • Hyderabad • New Delhi</div>
-              </div>
-              <div className="ct-route-card">
-                <div className="ct-route-dest">Trains to New Delhi</div>
-                <div className="ct-route-links">via Patna • Varanasi • Mumbai • Lucknow</div>
-              </div>
-              <div className="ct-route-card">
-                <div className="ct-route-dest">Trains to Mumbai</div>
-                <div className="ct-route-links">via New Delhi • Pune • Ahmedabad • Surat</div>
-              </div>
-            </div>
           </section>
         </main>
       )}
 
       {/* FOOTER */}
       <footer className="ct-footer">
-        <div className="ct-footer-grid">
-          <div>
-            <div className="ct-footer-title">Book</div>
-            <ul className="ct-footer-list">
-              <li><a href="#trains">IRCTC Tickets</a></li>
-              <li><a href="#pnr">PNR Status</a></li>
-              <li><a href="#food">Order Food on Train</a></li>
-            </ul>
-          </div>
-          <div>
-            <div className="ct-footer-title">Features</div>
-            <ul className="ct-footer-list">
-              <li><a href="#pnr">PNR Status</a></li>
-              <li><a href="#running">Train Running Status</a></li>
-              <li><a href="#schedule">Train Schedule</a></li>
-            </ul>
-          </div>
-          <div>
-            <div className="ct-footer-title">About ConfirmTkt</div>
-            <ul className="ct-footer-list">
-              <li><a href="#contact">Contact Us (08068243910)</a></li>
-              <li><a href="#media">Media Kit</a></li>
-            </ul>
-          </div>
-          <div>
-            <div className="ct-footer-title">Partners</div>
-            <ul className="ct-footer-list">
-              <li><a href="#ixigo">ixigo</a></li>
-              <li><a href="#abhibus">abhibus</a></li>
-            </ul>
-          </div>
-          <div>
-            <div className="ct-footer-title">Legal</div>
-            <ul className="ct-footer-list">
-              <li><a href="#privacy">Privacy Policy</a></li>
-              <li><a href="#terms">Terms & Conditions</a></li>
-            </ul>
-          </div>
-        </div>
-
         <div className="ct-footer-bottom">
           Confirmtkt.com is official partner of IRCTC to book IRCTC train tickets and Railway train enquiry.<br/>
           © Copyright @ Le Travenues Technology Ltd. All Rights Reserved.
         </div>
       </footer>
 
-      {/* REAL AUTH MODAL */}
+      {/* REAL AUTH MODAL (CLOSES ON BACKDROP CLICK) */}
       {showAuthModal && (
         <div className="ct-modal-bg" onClick={() => setShowAuthModal(false)}>
           <div className="ct-auth-modal" onClick={(e) => e.stopPropagation()}>
