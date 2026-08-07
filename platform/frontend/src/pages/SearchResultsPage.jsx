@@ -235,13 +235,11 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
 
   // WORKING FILTER LOGIC
   const filteredTrains = DUMMY_TRAINS.filter(train => {
-    // AC Only Filter
     if (filterAcOnly) {
       const hasAc = train.classes.some(c => ['3A', '2A', '1A', 'CC', 'EC'].includes(c.code));
       if (!hasAc) return false;
     }
 
-    // Available Seats Only Filter (Checks status based on active quota)
     if (filterAvailableOnly) {
       const hasAvail = train.classes.some(c => {
         const st = selectedQuota === 'TATKAL' ? c.tatkalStatus : (selectedQuota === 'LADIES' ? c.ladiesStatus : c.generalStatus);
@@ -250,7 +248,6 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
       if (!hasAvail) return false;
     }
 
-    // Departure Time Slot Filter
     if (filterTimeSlot === 'EARLY' && !(train.deptHour >= 0 && train.deptHour < 6)) return false;
     if (filterTimeSlot === 'MORNING' && !(train.deptHour >= 6 && train.deptHour < 12)) return false;
     if (filterTimeSlot === 'AFTERNOON' && !(train.deptHour >= 12 && train.deptHour < 18)) return false;
@@ -277,13 +274,13 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
           </div>
         </div>
 
-        {/* WORKING QUOTA SELECTOR */}
+        {/* TEXT-ONLY QUOTA SELECTOR (ZERO EMOJIS) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>Quota:</span>
           {[
             { id: 'GENERAL', label: 'GENERAL' },
-            { id: 'TATKAL', label: '⚡ TATKAL' },
-            { id: 'LADIES', label: '👩 LADIES' }
+            { id: 'TATKAL', label: 'TATKAL' },
+            { id: 'LADIES', label: 'LADIES' }
           ].map(q => (
             <button
               key={q.id}
@@ -391,12 +388,12 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     {selectedQuota === 'TATKAL' && (
                       <span style={{ fontSize: '0.7rem', background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>
-                        ⚡ TATKAL QUOTA ACTIVE
+                        TATKAL QUOTA ACTIVE
                       </span>
                     )}
                     {selectedQuota === 'LADIES' && (
                       <span style={{ fontSize: '0.7rem', background: '#fdf2f8', color: '#be185d', border: '1px solid #fce7f3', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>
-                        👩 LADIES QUOTA ACTIVE
+                        LADIES QUOTA ACTIVE
                       </span>
                     )}
                     <span style={{ fontSize: '0.75rem', color: '#2563eb', fontWeight: 700 }}>SUPERFAST • GUARANTEED REFUND</span>
@@ -426,7 +423,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
                   </div>
                 </div>
 
-                {/* CLASS MATRIX ROW (DYNAMICALLY UPDATING BY QUOTA) */}
+                {/* CLASS MATRIX ROW */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
                   {train.classes.map(cls => {
                     const statusText = selectedQuota === 'TATKAL' ? cls.tatkalStatus : (selectedQuota === 'LADIES' ? cls.ladiesStatus : cls.generalStatus);
