@@ -63,7 +63,7 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
 
   const [activeCoach, setActiveCoach] = useState(availableCoaches[0]);
   const [passengerCount, setPassengerCount] = useState(1);
-  const [selectedSeats, setSelectedSeats] = useState([]); // [{ coach: 'B1', id: 12, num: 12, type: 'LB' }]
+  const [selectedSeats, setSelectedSeats] = useState([]);
   const [timerSeconds, setTimerSeconds] = useState(300);
 
   // Form & Ticket State
@@ -323,9 +323,9 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
                     </div>
                   </div>
 
-                  {/* CENTER WALKING AISLE */}
-                  <div style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', letterSpacing: '1px' }}>
-                    AISLE<br/>🚶
+                  {/* CENTER WALKING AISLE (TEXT ONLY - ZERO EMOJIS) */}
+                  <div style={{ textAlign: 'center', fontSize: '0.7rem', fontWeight: 800, color: '#94a3b8', letterSpacing: '1px' }}>
+                    AISLE
                   </div>
 
                   {/* SIDE CORRIDOR (SIDE LOWER & SIDE UPPER) */}
@@ -442,7 +442,7 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
 
               <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#065f46' }}>🛡️ Free Cancellation Protection</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#065f46' }}>Free Cancellation Protection</div>
                   <div style={{ fontSize: '0.75rem', color: '#047857' }}>Get 100% full refund on cancellation</div>
                 </div>
                 <input type="checkbox" checked={optFreeCancel} onChange={(e) => setOptFreeCancel(e.target.checked)} style={{ width: '18px', height: '18px' }} />
