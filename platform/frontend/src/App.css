@@ -1,4 +1,4 @@
-/* ConfirmTkt Exact Pixel-Perfect Styling with Mulish Google Font & Complete Homepage Details */
+/* ConfirmTkt Exact Pixel-Perfect Styling with Mulish Google Font & User Profile Dropover */
 @import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800;900&display=swap');
 
 :root {
@@ -26,7 +26,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Header - Pure White (No Flights/Hotels, Only Train Options & Auth) */
+/* Header - Pure White */
 .ct-header {
   background: var(--ct-white);
   border-bottom: 1px solid var(--ct-border);
@@ -77,6 +77,10 @@ body {
   color: var(--ct-green);
 }
 
+.ct-user-badge-wrapper {
+  position: relative;
+}
+
 .ct-user-badge {
   display: flex;
   align-items: center;
@@ -85,8 +89,14 @@ body {
   font-weight: 800;
   color: #1e293b;
   background: #f1f5f9;
-  padding: 0.4rem 0.85rem;
+  padding: 0.45rem 0.95rem;
   border-radius: 20px;
+  border: 1px solid var(--ct-border);
+  transition: background 0.15s;
+}
+
+.ct-user-badge:hover {
+  background: #e2e8f0;
 }
 
 .ct-admin-tag {
@@ -98,6 +108,56 @@ body {
   border-radius: 4px;
   margin-left: 0.35rem;
   text-transform: uppercase;
+}
+
+/* User Profile Dropdown Popover */
+.ct-profile-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.65rem;
+  background: #ffffff;
+  border: 1px solid var(--ct-border);
+  border-radius: 14px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+  padding: 1.1rem;
+  width: 230px;
+  z-index: 600;
+  text-align: left;
+}
+
+.ct-profile-name {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.ct-profile-email {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+  word-break: break-all;
+}
+
+.ct-btn-logout-red {
+  width: 100%;
+  background: #dc2626;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background 0.15s;
+}
+
+.ct-btn-logout-red:hover {
+  background: #b91c1c;
 }
 
 /* Hero Section */
@@ -195,7 +255,6 @@ body {
   width: 100%;
 }
 
-/* SWAP BUTTON OVERLAPPING VERTICAL DIVIDER LINE */
 .ct-swap-overlap-btn {
   position: absolute;
   left: 50%;
@@ -221,7 +280,6 @@ body {
   transform: translate(-50%, -50%) rotate(180deg);
 }
 
-/* Right Section & CTA */
 .ct-search-box-right {
   display: flex;
   align-items: center;
@@ -257,7 +315,6 @@ body {
   background: var(--ct-green-hover);
 }
 
-/* Station Dropdown Popover */
 .ct-dropdown {
   position: absolute;
   top: 100%;
@@ -316,7 +373,6 @@ body {
   color: #6b7280;
 }
 
-/* Multi-Month Working Calendar Popover */
 .ct-calendar-modal {
   position: absolute;
   top: 100%;
@@ -388,7 +444,6 @@ body {
   font-weight: 900;
 }
 
-/* Features Section ("Why Book Train Tickets With Confirmtkt?") */
 .ct-features-section {
   padding: 3.5rem 1rem;
   max-width: 1080px;
@@ -441,7 +496,6 @@ body {
   line-height: 1.5;
 }
 
-/* RCB Partner Banner */
 .ct-rcb-banner-box {
   background: linear-gradient(90deg, #1c1917 0%, #292524 100%);
   color: #ffffff;
@@ -466,7 +520,6 @@ body {
   margin-top: 0.25rem;
 }
 
-/* Informational Content Container */
 .ct-info-container {
   max-width: 1080px;
   margin: 0 auto 3rem auto;
@@ -500,7 +553,6 @@ body {
   margin-bottom: 1rem;
 }
 
-/* FAQ Collapsible Cards */
 .ct-faq-card {
   border-bottom: 1px solid var(--ct-border);
   padding: 1rem 0;
@@ -519,7 +571,6 @@ body {
   line-height: 1.5;
 }
 
-/* Top Routes Grid */
 .ct-routes-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -547,7 +598,6 @@ body {
   font-weight: 700;
 }
 
-/* ConfirmTkt Pure White Footer */
 .ct-footer {
   background: #ffffff;
   border-top: 1px solid var(--ct-border);
@@ -601,7 +651,6 @@ body {
   font-size: 0.8rem;
 }
 
-/* Modal Overlay for Login / Register */
 .ct-modal-bg {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
