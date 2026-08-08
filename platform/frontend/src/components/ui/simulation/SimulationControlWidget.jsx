@@ -33,6 +33,7 @@ export default function SimulationControlWidget() {
         alignItems: 'center',
         fontSize: '0.85rem'
       }}>
+        {/* LEFT SIDE: BADGE + SIM TIME */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', fontWeight: 800, padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem' }}>
             SIMULATION ENGINE
@@ -42,6 +43,7 @@ export default function SimulationControlWidget() {
           </span>
         </div>
 
+        {/* RIGHT SIDE: SPEED SELECTOR + PAUSE BUTTON */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <span style={{ color: '#475569', fontWeight: 700, fontSize: '0.8rem' }}>SPEED:</span>
@@ -84,7 +86,7 @@ export default function SimulationControlWidget() {
         </div>
       </div>
 
-      {/* SINGLE CENTERED TOGGLE ARROW (SLIDES PANEL IN AND OUT) */}
+      {/* SINGLE CENTERED TOGGLE ARROW */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         title={isOpen ? "Hide Simulation Header" : "Show Simulation Header"}
