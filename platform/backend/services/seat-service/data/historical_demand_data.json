@@ -1,0 +1,42 @@
+{
+  "project_name": "TicketForge: High-Concurrency Indian Railways Simulation & Analytics Engine",
+  "berth_demand_weights": {
+    "LB": 3.2,
+    "SL": 2.8,
+    "MB": 1.2,
+    "UB": 1.0,
+    "SU": 1.1
+  },
+  "class_demand_weights": {
+    "TATKAL": 5.0,
+    "1A": 1.8,
+    "2A": 2.2,
+    "3A": 2.8,
+    "CC": 2.4,
+    "SL": 1.2
+  },
+  "train_popularity_ranks": {
+    "22436": { "name": "VANDE BHARAT EXPRESS", "rank": 1, "velocity_multiplier": 4.0 },
+    "12951": { "name": "MUMBAI RAJDHANI EXP", "rank": 2, "velocity_multiplier": 3.5 },
+    "12002": { "name": "SHATABDI EXPRESS", "rank": 3, "velocity_multiplier": 2.8 },
+    "12953": { "name": "AUGUST KRANTI RAJDHANI", "rank": 4, "velocity_multiplier": 3.2 },
+    "12259": { "name": "SEALDAH DURONTO EXP", "rank": 5, "velocity_multiplier": 2.6 },
+    "12472": { "name": "SWARAJ EXPRESS", "rank": 6, "velocity_multiplier": 1.8 },
+    "12626": { "name": "KERALA EXPRESS", "rank": 7, "velocity_multiplier": 1.5 },
+    "12926": { "name": "PASCHIM EXPRESS", "rank": 8, "velocity_multiplier": 1.4 }
+  },
+  "route_demand_multipliers": {
+    "NDLS_MMCT": 3.0,
+    "NDLS_HWH": 2.8,
+    "NDLS_SBC": 2.5,
+    "NDLS_GHY": 2.2,
+    "NDLS_MAS": 2.4
+  },
+  "seasonal_festival_multipliers": {
+    "DIWALI": 3.5,
+    "CHHATH_PUJA": 4.2,
+    "DURGA_PUJA": 3.8,
+    "SUMMER_VACATION": 2.1,
+    "REGULAR": 1.0
+  }
+}
