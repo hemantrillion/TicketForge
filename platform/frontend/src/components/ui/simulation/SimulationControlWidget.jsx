@@ -18,18 +18,23 @@ export default function SimulationControlWidget() {
   };
 
   return (
-    <div style={{ position: 'relative', zIndex: 2000, width: '100%' }}>
-      {/* SLIDING HEADER PANEL (WHITE & GREEN THEME) */}
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      zIndex: 2000,
+      transform: isOpen ? 'translateY(0)' : 'translateY(-100%)',
+      transition: 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+    }}>
+      {/* INTEGRATED SLIDING HEADER BAR */}
       <div style={{
         background: '#ffffff',
         borderBottom: '2px solid #a7f3d0',
         boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-        padding: isOpen ? '0.65rem 2rem' : '0rem 2rem',
+        padding: '0.65rem 2rem',
         width: '100%',
         boxSizing: 'border-box',
-        maxHeight: isOpen ? '80px' : '0px',
-        overflow: 'hidden',
-        transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
         display: 'flex',
         justify: 'space-between',
         alignItems: 'center',
@@ -86,34 +91,32 @@ export default function SimulationControlWidget() {
             {isPaused ? 'RESUME SIMULATION' : 'PAUSE SIMULATION'}
           </button>
         </div>
-      </div>
 
-      {/* SINGLE CENTERED TOGGLE ARROW */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        title={isOpen ? "Hide Simulation Header" : "Show Simulation Header"}
-        style={{
-          position: 'absolute',
-          top: isOpen ? '100%' : '0',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: '#ffffff',
-          color: '#059669',
-          border: '1px solid #a7f3d0',
-          borderTop: 'none',
-          borderBottomLeftRadius: '10px',
-          borderBottomRightRadius: '10px',
-          padding: '0.25rem 1rem',
-          fontSize: '0.9rem',
-          fontWeight: 900,
-          cursor: 'pointer',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-          zIndex: 2001,
-          transition: 'top 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
-        }}
-      >
-        {isOpen ? '▲' : '▼'}
-      </button>
+        {/* SEAMLESSLY ATTACHED BOTTOM TAB ARROW */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          title={isOpen ? "Hide Simulation Header" : "Show Simulation Header"}
+          style={{
+            position: 'absolute',
+            bottom: '-25px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: '#ffffff',
+            color: '#059669',
+            border: '2px solid #a7f3d0',
+            borderTop: 'none',
+            borderBottomLeftRadius: '10px',
+            borderBottomRightRadius: '10px',
+            padding: '0.15rem 1.25rem',
+            fontSize: '0.85rem',
+            fontWeight: 900,
+            cursor: 'pointer',
+            boxShadow: '0 3px 6px rgba(0,0,0,0.06)'
+          }}
+        >
+          {isOpen ? '▲' : '▼'}
+        </button>
+      </div>
     </div>
   );
 }
