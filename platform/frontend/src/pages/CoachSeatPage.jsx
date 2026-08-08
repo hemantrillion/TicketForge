@@ -1,52 +1,98 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useSimulationClock } from '../context/SimulationClockContext';
 
 const API_BASE = 'http://localhost:5000/api';
 
-// GENERATE REALISTIC BAY DATA FOR 3A / SL (72 BERTHS - 9 BAYS OF 8 BERTHS)
-const GENERATE_3A_BAYS = () => {
+// GENERATE SEEDED & DYNAMIC OCCUPANCY FOR 3A / SL (72 BERTHS - 9 BAYS OF 8 BERTHS)
+const GENERATE_DYNAMIC_3A_BAYS = (trainId, coachId, simHoursElapsed) => {
+  // Simple deterministic seed generator based on trainId and coachId
+  const seedString = `${trainId || '12951'}-${coachId || 'B1'}`;
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) {
+    seed = (seed << 5) - seed + seedString.charCodeAt(i);
+    seed |= 0;
+  }
+  const pseudoRandom = (offset) => Math.abs(Math.sin(seed + offset));
+
+  // Determine base occupied seats based on seed
+  const initialOccupiedSet = new Set();
+  for (let s = 1; s <= 72; s++) {
+    if (pseudoRandom(s) > 0.65) {
+      initialOccupiedSet.add(s);
+    }
+  }
+
+  // Dynamically fill additional berths in groups (1-4 seats) as simHoursElapsed advances
+  const dynamicBookingsCount = Math.floor(simHoursElapsed * 1.5);
+  for (let step = 1; step <= dynamicBookingsCount; step++) {
+    const seatToOccupy = Math.floor(pseudoRandom(step * 7) * 72) + 1;
+    initialOccupiedSet.add(seatToOccupy);
+  }
+
   const bays = [];
   for (let b = 0; b < 9; b++) {
     const start = b * 8;
     bays.push({
       bayNum: b + 1,
       mainLeft: [
-        { id: start + 1, num: start + 1, type: 'LB', isOccupied: [5, 12, 27, 44, 60].includes(start + 1) },
-        { id: start + 2, num: start + 2, type: 'MB', isOccupied: [6, 18, 45].includes(start + 2) },
-        { id: start + 3, num: start + 3, type: 'UB', isOccupied: [19, 27].includes(start + 3) }
+        { id: start + 1, num: start + 1, type: 'LB', isOccupied: initialOccupiedSet.has(start + 1) },
+        { id: start + 2, num: start + 2, type: 'MB', isOccupied: initialOccupiedSet.has(start + 2) },
+        { id: start + 3, num: start + 3, type: 'UB', isOccupied: initialOccupiedSet.has(start + 3) }
       ],
       mainRight: [
-        { id: start + 4, num: start + 4, type: 'LB', isOccupied: [4, 20, 36, 52].includes(start + 4) },
-        { id: start + 5, num: start + 5, type: 'MB', isOccupied: [13, 29, 53].includes(start + 5) },
-        { id: start + 6, num: start + 6, type: 'UB', isOccupied: [14, 30, 54].includes(start + 6) }
+        { id: start + 4, num: start + 4, type: 'LB', isOccupied: initialOccupiedSet.has(start + 4) },
+        { id: start + 5, num: start + 5, type: 'MB', isOccupied: initialOccupiedSet.has(start + 5) },
+        { id: start + 6, num: start + 6, type: 'UB', isOccupied: initialOccupiedSet.has(start + 6) }
       ],
       sideCorridor: [
-        { id: start + 7, num: start + 7, type: 'SL', isOccupied: [7, 15, 31, 47, 63].includes(start + 7) },
-        { id: start + 8, num: start + 8, type: 'SU', isOccupied: [8, 16, 32, 48, 64].includes(start + 8) }
+        { id: start + 7, num: start + 7, type: 'SL', isOccupied: initialOccupiedSet.has(start + 7) },
+        { id: start + 8, num: start + 8, type: 'SU', isOccupied: initialOccupiedSet.has(start + 8) }
       ]
     });
   }
   return bays;
 };
 
-// GENERATE REALISTIC BAY DATA FOR 2A (54 BERTHS - NO MIDDLE BERTHS - 9 BAYS OF 6 BERTHS)
-const GENERATE_2A_BAYS = () => {
+// GENERATE SEEDED & DYNAMIC OCCUPANCY FOR 2A (54 BERTHS - 9 BAYS OF 6 BERTHS)
+const GENERATE_DYNAMIC_2A_BAYS = (trainId, coachId, simHoursElapsed) => {
+  const seedString = `${trainId || '12951'}-${coachId || 'A1'}`;
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) {
+    seed = (seed << 5) - seed + seedString.charCodeAt(i);
+    seed |= 0;
+  }
+  const pseudoRandom = (offset) => Math.abs(Math.sin(seed + offset));
+
+  const initialOccupiedSet = new Set();
+  for (let s = 1; s <= 54; s++) {
+    if (pseudoRandom(s) > 0.6) {
+      initialOccupiedSet.add(s);
+    }
+  }
+
+  const dynamicBookingsCount = Math.floor(simHoursElapsed * 1.2);
+  for (let step = 1; step <= dynamicBookingsCount; step++) {
+    const seatToOccupy = Math.floor(pseudoRandom(step * 9) * 54) + 1;
+    initialOccupiedSet.add(seatToOccupy);
+  }
+
   const bays = [];
   for (let b = 0; b < 9; b++) {
     const start = b * 6;
     bays.push({
       bayNum: b + 1,
       mainLeft: [
-        { id: start + 1, num: start + 1, type: 'LB', isOccupied: [1, 7, 19].includes(start + 1) },
-        { id: start + 2, num: start + 2, type: 'UB', isOccupied: [2, 14, 26].includes(start + 2) }
+        { id: start + 1, num: start + 1, type: 'LB', isOccupied: initialOccupiedSet.has(start + 1) },
+        { id: start + 2, num: start + 2, type: 'UB', isOccupied: initialOccupiedSet.has(start + 2) }
       ],
       mainRight: [
-        { id: start + 3, num: start + 3, type: 'LB', isOccupied: [3, 15, 27].includes(start + 3) },
-        { id: start + 4, num: start + 4, type: 'UB', isOccupied: [4, 16, 28].includes(start + 4) }
+        { id: start + 3, num: start + 3, type: 'LB', isOccupied: initialOccupiedSet.has(start + 3) },
+        { id: start + 4, num: start + 4, type: 'UB', isOccupied: initialOccupiedSet.has(start + 4) }
       ],
       sideCorridor: [
-        { id: start + 5, num: start + 5, type: 'SL', isOccupied: [5, 17, 29].includes(start + 5) },
-        { id: start + 6, num: start + 6, type: 'SU', isOccupied: [6, 18, 30].includes(start + 6) }
+        { id: start + 5, num: start + 5, type: 'SL', isOccupied: initialOccupiedSet.has(start + 5) },
+        { id: start + 6, num: start + 6, type: 'SU', isOccupied: initialOccupiedSet.has(start + 6) }
       ]
     });
   }
@@ -54,9 +100,9 @@ const GENERATE_2A_BAYS = () => {
 };
 
 export default function CoachSeatPage({ train, selectedClass, fromStation, toStation, displayDateStr, onBackToResults, user }) {
+  const { simDate } = useSimulationClock();
   const classCode = selectedClass ? selectedClass.code : '3A';
   
-  // COACH LIST BY CLASS
   const availableCoaches = classCode.startsWith('2A')
     ? ['A1', 'A2', 'A3']
     : (classCode.startsWith('1A') ? ['H1'] : (classCode.startsWith('SL') ? ['S1', 'S2', 'S3', 'S4', 'S5'] : ['B1', 'B2', 'B3', 'B4', 'B5']));
@@ -117,14 +163,14 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
     e.preventDefault();
     setBookingLoading(true);
 
-    const seatDesc = selectedSeats.map((s, idx) => `${s.coach}-${s.num} (${s.type})`).join(', ');
+    const seatDesc = selectedSeats.map((s) => `${s.coach}-${s.num} (${s.type})`).join(', ');
 
     try {
       const res = await axios.post(`${API_BASE}/bookings`, {
         user_id: user ? user.id : 1,
         event_id: train ? parseInt(train.id) : 101,
         seat_ids: selectedSeats.map(s => s.id),
-        passenger_name: passengers[0].name || 'Rahul Sharma',
+        passenger_name: passengers[0].name || 'Passenger 1',
         passenger_age: parseInt(passengers[0].age) || 28
       });
 
@@ -136,7 +182,7 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
         toStation,
         displayDateStr,
         seats: seatDesc || `${activeCoach}-12 (LB)`,
-        passengerName: passengers[0].name || 'Rahul Sharma',
+        passengerName: passengers[0].name || 'Passenger 1',
         amountPaid: selectedClass ? selectedClass.price * passengerCount + (optFreeCancel ? 199 * passengerCount : 0) : 2150
       });
 
@@ -151,7 +197,7 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
         toStation,
         displayDateStr,
         seats: seatDesc || `${activeCoach}-12 (LB)`,
-        passengerName: passengers[0].name || 'Rahul Sharma',
+        passengerName: passengers[0].name || 'Passenger 1',
         amountPaid: selectedClass ? selectedClass.price * passengerCount + (optFreeCancel ? 199 * passengerCount : 0) : 2150
       });
       setShowPaymentModal(false);
@@ -164,7 +210,15 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
   const basePrice = selectedClass ? selectedClass.price : 2150;
   const totalPrice = basePrice * passengerCount + (optFreeCancel ? 199 * passengerCount : 0);
 
-  const baysData = classCode.startsWith('2A') ? GENERATE_2A_BAYS() : GENERATE_3A_BAYS();
+  // CALCULATE SIM HOURS ELAPSED TO DRIVE REAL-TIME DYNAMIC SEAT OCCUPANCY
+  const baseTime = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), 6, 0, 0).getTime();
+  const currentSimTime = simDate.getTime();
+  const simHoursElapsed = Math.max(0, (currentSimTime - baseTime) / (1000 * 60 * 60));
+
+  const trainId = train ? train.number : '12951';
+  const baysData = classCode.startsWith('2A')
+    ? GENERATE_DYNAMIC_2A_BAYS(trainId, activeCoach, simHoursElapsed)
+    : GENERATE_DYNAMIC_3A_BAYS(trainId, activeCoach, simHoursElapsed);
 
   return (
     <div style={{ background: '#f4f5f7', minHeight: '100vh', paddingBottom: '4rem' }}>
@@ -323,7 +377,7 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
                     </div>
                   </div>
 
-                  {/* CENTER WALKING AISLE (TEXT ONLY - ZERO EMOJIS) */}
+                  {/* CENTER WALKING AISLE */}
                   <div style={{ textAlign: 'center', fontSize: '0.7rem', fontWeight: 800, color: '#94a3b8', letterSpacing: '1px' }}>
                     AISLE
                   </div>
