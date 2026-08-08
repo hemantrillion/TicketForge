@@ -6,12 +6,30 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
   const { simDate } = useSimulationClock();
   const [selectedQuota, setSelectedQuota] = useState('GENERAL');
   const [filterAcOnly, setFilterAcOnly] = useState(false);
-  const [filterAvailableOnly, setFilterAvailableOnly] = useState(true); // DEFAULT TOGGLED ON
+  const [filterAvailableOnly, setFilterAvailableOnly] = useState(true);
   const [filterTimeSlot, setFilterTimeSlot] = useState('ALL');
 
   const simDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const simMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const activeSimDateStr = `${simDayNames[simDate.getDay()]}, ${simDate.getDate().toString().padStart(2, '0')} ${simMonthNames[simDate.getMonth()]}`;
+
+  // CHECK IF TRAIN RUNS ON THE CURRENT SIM-DATE DAY OF WEEK
+  // Days string format: "M T W T F S S" or "M - W T - - S"
+  const doesTrainRunToday = (trainDaysStr) => {
+    if (!trainDaysStr) return true;
+    const dayOfWeek = simDate.getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
+    
+    // Map JS getDay() (0=Sun, 1=Mon...6=Sat) to index in "M T W T F S S" (0=Mon...5=Sat, 6=Sun)
+    const dayIndexMap = [6, 0, 1, 2, 3, 4, 5];
+    const targetIdx = dayIndexMap[dayOfWeek];
+
+    // Split string by whitespace: ["M", "-", "W", "T", "-", "-", "S"]
+    const dayTokens = trainDaysStr.split(/\s+/);
+    if (dayTokens.length >= 7) {
+      return dayTokens[targetIdx] !== '-';
+    }
+    return true;
+  };
 
   // CHECK IF TRAIN HAS DEPARTED RELATIVE TO SIM DATE & TIME TODAY
   const isTrainDeparted = (train) => {
@@ -44,6 +62,9 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
   };
 
   const filteredTrains = REAL_INDIAN_RAILWAYS_TRAINS.map(train => {
+    const runsToday = doesTrainRunToday(train.days);
+    if (!runsToday) return null;
+
     const matchingClasses = train.classes.filter(c => {
       if (filterAcOnly && !['3A', '2A', '1A', 'CC', 'EC'].includes(c.code)) {
         return false;
@@ -60,7 +81,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
       visibleClasses: matchingClasses
     };
   }).filter(train => {
-    if (train.visibleClasses.length === 0) return false;
+    if (!train || train.visibleClasses.length === 0) return false;
 
     if (filterTimeSlot === 'EARLY' && !(train.deptHour >= 0 && train.deptHour < 6)) return false;
     if (filterTimeSlot === 'MORNING' && !(train.deptHour >= 6 && train.deptHour < 12)) return false;
@@ -83,7 +104,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
               {fromStation} ➔ {toStation}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              Sim Date: <strong style={{ color: '#0284c7' }}>{activeSimDateStr}</strong> • {filteredTrains.length} Real Trains Found
+              Sim Date: <strong style={{ color: '#0284c7' }}>{activeSimDateStr}</strong> • {filteredTrains.length} Real Trains Running Today
             </div>
           </div>
         </div>
