@@ -18,13 +18,15 @@ export default function SimulationControlWidget() {
   };
 
   return (
-    <div style={{ position: 'relative', zIndex: 2000 }}>
+    <div style={{ position: 'relative', zIndex: 2000, width: '100%' }}>
       {/* SLIDING HEADER PANEL (WHITE & GREEN THEME) */}
       <div style={{
         background: '#ffffff',
         borderBottom: '2px solid #a7f3d0',
         boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
         padding: isOpen ? '0.65rem 2rem' : '0rem 2rem',
+        width: '100%',
+        boxSizing: 'border-box',
         maxHeight: isOpen ? '80px' : '0px',
         overflow: 'hidden',
         transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -44,7 +46,7 @@ export default function SimulationControlWidget() {
         </div>
 
         {/* RIGHT SIDE: SPEED SELECTOR + PAUSE BUTTON */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginLeft: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <span style={{ color: '#475569', fontWeight: 700, fontSize: '0.8rem' }}>SPEED:</span>
             {[1, 2, 6, 12, 24].map(s => (
