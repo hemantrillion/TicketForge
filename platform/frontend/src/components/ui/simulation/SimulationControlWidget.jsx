@@ -5,7 +5,7 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 
 export default function SimulationControlWidget() {
   const { simDate, simSpeed, setSimSpeed, isPaused, setIsPaused } = useSimulationClock();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const formatDate = (d) => {
     const day = d.getDate().toString().padStart(2, '0');
@@ -18,103 +18,98 @@ export default function SimulationControlWidget() {
   };
 
   return (
-    <div style={{ position: 'relative', zIndex: 1000 }}>
-      {isOpen ? (
-        <div style={{ background: '#0f172a', color: '#ffffff', padding: '0.5rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', borderBottom: '2px solid #334155', transition: 'all 0.3s ease' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{ background: '#3b82f6', color: '#ffffff', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem' }}>
-              SIMULATION ENGINE
-            </span>
-            <span style={{ fontWeight: 800, letterSpacing: '0.5px' }}>
-              SIM TIME: <span style={{ color: '#38bdf8' }}>{formatDate(simDate)}</span>
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ color: '#94a3b8', fontWeight: 700 }}>SPEED:</span>
-              {[1, 2, 6, 12, 24].map(s => (
-                <button
-                  key={s}
-                  onClick={() => setSimSpeed(s)}
-                  style={{
-                    background: simSpeed === s ? '#3aa459' : '#1e293b',
-                    color: simSpeed === s ? '#ffffff' : '#94a3b8',
-                    border: simSpeed === s ? '1px solid #3aa459' : '1px solid #475569',
-                    padding: '0.2rem 0.55rem',
-                    borderRadius: '4px',
-                    fontWeight: 800,
-                    fontSize: '0.75rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {s}x {s === 24 ? '(1m=1d)' : ''}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => setIsPaused(!isPaused)}
-              style={{
-                background: isPaused ? '#ea580c' : '#0284c7',
-                color: '#ffffff',
-                border: 'none',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '4px',
-                fontWeight: 800,
-                fontSize: '0.75rem',
-                cursor: 'pointer'
-              }}
-            >
-              {isPaused ? 'RESUME SIMULATION' : 'PAUSE SIMULATION'}
-            </button>
-
-            <button
-              onClick={() => setIsOpen(false)}
-              title="Hide Simulation Control Panel"
-              style={{
-                background: 'transparent',
-                color: '#94a3b8',
-                border: '1px solid #475569',
-                borderRadius: '4px',
-                padding: '0.15rem 0.4rem',
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: 800
-              }}
-            >
-              ▲ Slide Up
-            </button>
-          </div>
+    <div style={{ position: 'relative', zIndex: 2000 }}>
+      {/* SLIDING HEADER PANEL (WHITE & GREEN THEME) */}
+      <div style={{
+        background: '#ffffff',
+        borderBottom: '2px solid #a7f3d0',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+        padding: isOpen ? '0.65rem 2rem' : '0rem 2rem',
+        maxHeight: isOpen ? '80px' : '0px',
+        overflow: 'hidden',
+        transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+        display: 'flex',
+        justify: 'space-between',
+        alignItems: 'center',
+        fontSize: '0.85rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', fontWeight: 800, padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem' }}>
+            SIMULATION ENGINE
+          </span>
+          <span style={{ fontWeight: 800, color: '#0f172a', letterSpacing: '0.5px' }}>
+            SIM TIME: <span style={{ color: '#059669', fontWeight: 900 }}>{formatDate(simDate)}</span>
+          </span>
         </div>
-      ) : (
-        <div style={{ textAlign: 'center', background: 'transparent', height: 0, position: 'relative' }}>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <span style={{ color: '#475569', fontWeight: 700, fontSize: '0.8rem' }}>SPEED:</span>
+            {[1, 2, 6, 12, 24].map(s => (
+              <button
+                key={s}
+                onClick={() => setSimSpeed(s)}
+                style={{
+                  background: simSpeed === s ? '#3aa459' : '#f1f5f9',
+                  color: simSpeed === s ? '#ffffff' : '#334155',
+                  border: simSpeed === s ? '1px solid #27793e' : '1px solid #cbd5e1',
+                  padding: '0.25rem 0.6rem',
+                  borderRadius: '6px',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {s}x {s === 24 ? '(1m=1d)' : ''}
+              </button>
+            ))}
+          </div>
+
           <button
-            onClick={() => setIsOpen(true)}
-            title="Show Simulation Control Panel"
+            onClick={() => setIsPaused(!isPaused)}
             style={{
-              position: 'absolute',
-              top: 0,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              background: '#0f172a',
-              color: '#38bdf8',
-              border: '1px solid #334155',
-              borderTop: 'none',
-              borderBottomLeftRadius: '8px',
-              borderBottomRightRadius: '8px',
-              padding: '0.25rem 1rem',
-              fontSize: '0.75rem',
+              background: isPaused ? '#ea580c' : '#059669',
+              color: '#ffffff',
+              border: 'none',
+              padding: '0.3rem 0.85rem',
+              borderRadius: '6px',
               fontWeight: 800,
-              cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-              zIndex: 1001
+              fontSize: '0.75rem',
+              cursor: 'pointer'
             }}
           >
-            ▼ Simulation Control Panel
+            {isPaused ? 'RESUME SIMULATION' : 'PAUSE SIMULATION'}
           </button>
         </div>
-      )}
+      </div>
+
+      {/* SINGLE CENTERED TOGGLE ARROW (SLIDES PANEL IN AND OUT) */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        title={isOpen ? "Hide Simulation Header" : "Show Simulation Header"}
+        style={{
+          position: 'absolute',
+          top: isOpen ? '100%' : '0',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#ffffff',
+          color: '#059669',
+          border: '1px solid #a7f3d0',
+          borderTop: 'none',
+          borderBottomLeftRadius: '10px',
+          borderBottomRightRadius: '10px',
+          padding: '0.25rem 1rem',
+          fontSize: '0.9rem',
+          fontWeight: 900,
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          zIndex: 2001,
+          transition: 'top 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      >
+        {isOpen ? '▲' : '▼'}
+      </button>
     </div>
   );
 }
