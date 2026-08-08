@@ -6,17 +6,16 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
   const { simDate } = useSimulationClock();
   const [selectedQuota, setSelectedQuota] = useState('GENERAL');
   const [filterAcOnly, setFilterAcOnly] = useState(false);
-  const [filterAvailableOnly, setFilterAvailableOnly] = useState(false);
+  const [filterAvailableOnly, setFilterAvailableOnly] = useState(true); // DEFAULT TOGGLED ON
   const [filterTimeSlot, setFilterTimeSlot] = useState('ALL');
 
   const simDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const simMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const activeSimDateStr = `${simDayNames[simDate.getDay()]}, ${simDate.getDate().toString().padStart(2, '0')} ${simMonthNames[simDate.getMonth()]}`;
 
-  // EXACT FIX: CHECK IF TRAIN HAS DEPARTED RELATIVE TO SIM DATE & TIME TODAY
+  // CHECK IF TRAIN HAS DEPARTED RELATIVE TO SIM DATE & TIME TODAY
   const isTrainDeparted = (train) => {
     const simTimeMs = simDate.getTime();
-    // Build departure timestamp for the train on the CURRENT simDate day!
     const trainDeptMs = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), train.deptHour, train.deptMin, 0).getTime();
     return simTimeMs > trainDeptMs;
   };
@@ -123,9 +122,9 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
         <aside style={{ background: '#ffffff', borderRadius: '12px', padding: '1.25rem', border: '1px solid #e2e8f0', height: 'fit-content' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.5rem' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>Filters</h3>
-            {(filterAcOnly || filterAvailableOnly || filterTimeSlot !== 'ALL') && (
+            {(filterAcOnly || !filterAvailableOnly || filterTimeSlot !== 'ALL') && (
               <span
-                onClick={() => { setFilterAcOnly(false); setFilterAvailableOnly(false); setFilterTimeSlot('ALL'); }}
+                onClick={() => { setFilterAcOnly(false); setFilterAvailableOnly(true); setFilterTimeSlot('ALL'); }}
                 style={{ fontSize: '0.75rem', color: '#dc2626', cursor: 'pointer', fontWeight: 700 }}
               >
                 Reset All
@@ -185,7 +184,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
               <h3 style={{ fontSize: '1.2rem', color: '#0f172a', fontWeight: 800 }}>No Trains Match Your Filters</h3>
               <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}>Try clearing your filters or selecting a different departure time slot.</p>
               <button
-                onClick={() => { setFilterAcOnly(false); setFilterAvailableOnly(false); setFilterTimeSlot('ALL'); }}
+                onClick={() => { setFilterAcOnly(false); setFilterAvailableOnly(true); setFilterTimeSlot('ALL'); }}
                 style={{ marginTop: '1rem', background: '#3aa459', color: '#ffffff', border: 'none', padding: '0.55rem 1.25rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}
               >
                 Reset Filters
