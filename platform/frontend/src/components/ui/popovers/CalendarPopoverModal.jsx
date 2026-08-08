@@ -1,35 +1,63 @@
 import React from 'react';
-import CalNavButton from '../buttons/CalNavButton';
+import { useSimulationClock } from '../../../context/SimulationClockContext';
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export default function CalendarPopoverModal({
-  calYear, calMonth,
-  handlePrevMonth, handleNextMonth,
+  calYear,
+  calMonth,
+  handlePrevMonth,
+  handleNextMonth,
   handleSelectCalDate,
-  firstDayIndex, daysInCalMonth,
+  firstDayIndex,
+  daysInCalMonth,
   selectedDate
 }) {
+  const { simDate } = useSimulationClock();
+
+  // Calculate if a calendar day is in the past relative to simDate
+  const isDateInPast = (dayNum) => {
+    const checkDate = new Date(calYear, calMonth, dayNum, 23, 59, 59);
+    const simTimeClean = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), 0, 0, 0);
+    return checkDate.getTime() < simTimeClean.getTime();
+  };
+
   return (
     <div className="ct-calendar-modal" onClick={(e) => e.stopPropagation()}>
       <div className="ct-cal-header">
-        <CalNavButton direction="prev" onClick={handlePrevMonth} />
-        <span>{MONTH_NAMES[calMonth]} {calYear}</span>
-        <CalNavButton direction="next" onClick={handleNextMonth} />
+        <button type="button" className="ct-cal-nav" onClick={handlePrevMonth}>‹</button>
+        <div className="ct-cal-title">{MONTH_NAMES[calMonth]} {calYear}</div>
+        <button type="button" className="ct-cal-nav" onClick={handleNextMonth}>›</button>
       </div>
-      <div className="ct-cal-days">
-        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-      </div>
+
       <div className="ct-cal-grid">
-        {[...Array(firstDayIndex)].map((_, i) => <div key={`blank-${i}`} />)}
-        {[...Array(daysInCalMonth)].map((_, idx) => {
-          const dayNum = idx + 1;
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+          <div key={i} className="ct-cal-day-label">{d}</div>
+        ))}
+
+        {Array.from({ length: firstDayIndex }).map((_, i) => (
+          <div key={`empty-${i}`} className="ct-cal-day empty"></div>
+        ))}
+
+        {Array.from({ length: daysInCalMonth }).map((_, i) => {
+          const dayNum = i + 1;
           const isSelected = selectedDate.getDate() === dayNum && selectedDate.getMonth() === calMonth && selectedDate.getFullYear() === calYear;
+          const isPast = isDateInPast(dayNum);
+
           return (
             <div
               key={dayNum}
-              className={`ct-cal-date ${isSelected ? 'active' : ''}`}
-              onClick={() => handleSelectCalDate(dayNum)}
+              className={`ct-cal-day ${isSelected ? 'selected' : ''} ${isPast ? 'disabled-past' : ''}`}
+              onClick={() => {
+                if (!isPast) handleSelectCalDate(dayNum);
+              }}
+              style={{
+                opacity: isPast ? 0.35 : 1,
+                cursor: isPast ? 'not-allowed' : 'pointer',
+                background: isSelected ? '#3aa459' : (isPast ? '#f1f5f9' : 'transparent'),
+                color: isSelected ? '#ffffff' : (isPast ? '#94a3b8' : '#0f172a'),
+                fontWeight: isSelected ? 900 : 700
+              }}
             >
               {dayNum}
             </div>

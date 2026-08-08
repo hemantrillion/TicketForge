@@ -2,6 +2,76 @@ import React, { useState } from 'react';
 import { useSimulationClock } from '../context/SimulationClockContext';
 
 const DUMMY_TRAINS = [
+  // EARLY MORNING TRAINS (00:00 - 06:00 AM)
+  {
+    id: '12952',
+    number: '12952',
+    name: 'MUMBAI AUGUST EXPRESS',
+    category: 'SUPERFAST EXPRESS',
+    categoryColor: '#2563eb',
+    days: 'M T W T F S S',
+    deptTime: '02:15',
+    deptHour: 2,
+    deptMin: 15,
+    deptStation: 'NDLS',
+    deptCity: 'New Delhi',
+    duration: '14h 15m',
+    arrTime: '16:30',
+    arrStation: 'MMCT',
+    arrCity: 'Mumbai Central',
+    baseAvail: { 3: 65, 2: 24, 1: 8 },
+    classes: [
+      { code: '3A', price: 1750 },
+      { code: '2A', price: 2540 },
+      { code: 'SL', price: 620 }
+    ]
+  },
+  {
+    id: '22210',
+    number: '22210',
+    name: 'DURONTO EXPRESS',
+    category: 'PREMIUM EXPRESS',
+    categoryColor: '#0284c7',
+    days: '- T - T - S -',
+    deptTime: '03:40',
+    deptHour: 3,
+    deptMin: 40,
+    deptStation: 'NDLS',
+    deptCity: 'New Delhi',
+    duration: '13h 35m',
+    arrTime: '17:15',
+    arrStation: 'MMCT',
+    arrCity: 'Mumbai Central',
+    baseAvail: { 3: 52, 2: 18, 1: 6 },
+    classes: [
+      { code: '3A', price: 2100 },
+      { code: '2A', price: 3050 }
+    ]
+  },
+  {
+    id: '12432',
+    number: '12432',
+    name: 'TRIVANDRUM RAJDHANI',
+    category: 'PREMIUM EXPRESS',
+    categoryColor: '#0284c7',
+    days: 'M - W T - - S',
+    deptTime: '05:10',
+    deptHour: 5,
+    deptMin: 10,
+    deptStation: 'NDLS',
+    deptCity: 'New Delhi',
+    duration: '15h 20m',
+    arrTime: '20:30',
+    arrStation: 'MMCT',
+    arrCity: 'Mumbai Central',
+    baseAvail: { 3: 40, 2: 12, 1: 4 },
+    classes: [
+      { code: '3A', price: 2180 },
+      { code: '2A', price: 3120 },
+      { code: '1A', price: 4950 }
+    ]
+  },
+  // MORNING TRAINS (06:00 - 12:00 AM)
   {
     id: '22436',
     number: '22436',
@@ -11,6 +81,7 @@ const DUMMY_TRAINS = [
     days: 'M T W T F S -',
     deptTime: '06:00',
     deptHour: 6,
+    deptMin: 0,
     deptStation: 'NDLS',
     deptCity: 'New Delhi',
     duration: '12h 15m',
@@ -32,6 +103,7 @@ const DUMMY_TRAINS = [
     days: 'M T W T F S S',
     deptTime: '06:15',
     deptHour: 6,
+    deptMin: 15,
     deptStation: 'NDLS',
     deptCity: 'New Delhi',
     duration: '11h 50m',
@@ -54,6 +126,7 @@ const DUMMY_TRAINS = [
     days: 'M T W T F S S',
     deptTime: '07:55',
     deptHour: 7,
+    deptMin: 55,
     deptStation: 'NDLS',
     deptCity: 'New Delhi',
     duration: '16h 05m',
@@ -76,6 +149,7 @@ const DUMMY_TRAINS = [
     days: '- T W - F S -',
     deptTime: '08:40',
     deptHour: 8,
+    deptMin: 40,
     deptStation: 'NDLS',
     deptCity: 'New Delhi',
     duration: '21h 30m',
@@ -98,6 +172,7 @@ const DUMMY_TRAINS = [
     days: 'M T W T F S S',
     deptTime: '10:00',
     deptHour: 10,
+    deptMin: 0,
     deptStation: 'NDLS',
     deptCity: 'New Delhi',
     duration: '23h 25m',
@@ -120,6 +195,7 @@ const DUMMY_TRAINS = [
     days: 'M T W T F S S',
     deptTime: '16:55',
     deptHour: 16,
+    deptMin: 55,
     deptStation: 'NDLS',
     deptCity: 'New Delhi',
     duration: '15h 40m',
@@ -142,6 +218,7 @@ const DUMMY_TRAINS = [
     days: 'M T W T F S S',
     deptTime: '20:10',
     deptHour: 20,
+    deptMin: 10,
     deptStation: 'NDLS',
     deptCity: 'New Delhi',
     duration: '18h 30m',
@@ -164,30 +241,38 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
   const [filterAvailableOnly, setFilterAvailableOnly] = useState(false);
   const [filterTimeSlot, setFilterTimeSlot] = useState('ALL');
 
-  // SIMULATION DISCREPANCY FIX: FORMAT SIM-CLOCK DATE FOR RESULTS HEADER
   const simDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const simMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const activeSimDateStr = `${simDayNames[simDate.getDay()]}, ${simDate.getDate().toString().padStart(2, '0')} ${simMonthNames[simDate.getMonth()]}`;
 
+  // CHECK IF TRAIN HAS DEPARTED UNDER SIM TIME
+  const isTrainDeparted = (train) => {
+    const simTimeMs = simDate.getTime();
+    // Assuming journey date is 09 Aug 2026 baseline for comparison
+    const trainDeptMs = new Date(2026, 7, 9, train.deptHour, train.deptMin, 0).getTime();
+    return simTimeMs > trainDeptMs;
+  };
+
   // DYNAMIC SEAT BOOKING SIMULATION DRIVEN BY SIM-CLOCK ACCELERATION
-  // Calculates seat count depletion as Sim Time advances
   const getDynamicSeatStatus = (train, clsCode) => {
+    if (isTrainDeparted(train)) {
+      return { status: 'DEPARTED - BOOKING CLOSED', cnf: 'Departure Passed', color: '#dc2626', avail: false, departed: true };
+    }
+
     const baseCount = (train.baseAvail && train.baseAvail[3]) ? train.baseAvail[3] : 42;
-    // Calculate sim hours elapsed from 09 Aug baseline
     const baseTime = new Date(2026, 7, 9, 6, 0, 0).getTime();
     const currentSimTime = simDate.getTime();
     const simHoursElapsed = Math.max(0, (currentSimTime - baseTime) / (1000 * 60 * 60));
 
-    // Dynamic depletion calculation (2-4 seats per sim-hour depending on train multiplier)
     const seatsBooked = Math.floor(simHoursElapsed * 2.5);
     const currentAvail = baseCount - seatsBooked;
 
     if (currentAvail > 0) {
-      return { status: `AVAILABLE - ${currentAvail.toString().padStart(4, '0')}`, cnf: 'CNF 100% High Chance', color: '#3aa459', avail: true };
+      return { status: `AVAILABLE - ${currentAvail.toString().padStart(4, '0')}`, cnf: 'CNF 100% High Chance', color: '#3aa459', avail: true, departed: false };
     } else if (currentAvail >= -15) {
-      return { status: `WL ${Math.abs(currentAvail) + 1}`, cnf: 'CNF 75% Medium Chance', color: '#d97706', avail: false };
+      return { status: `WL ${Math.abs(currentAvail) + 1}`, cnf: 'CNF 75% Medium Chance', color: '#d97706', avail: false, departed: false };
     } else {
-      return { status: 'NOT AVAILABLE', cnf: 'Low Chance', color: '#dc2626', avail: false };
+      return { status: 'NOT AVAILABLE', cnf: 'Low Chance', color: '#dc2626', avail: false, departed: false };
     }
   };
 
@@ -209,13 +294,6 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
     };
   }).filter(train => {
     if (train.visibleClasses.length === 0) return false;
-
-    // Check if train has already departed under Sim Time!
-    const simHour = simDate.getHours();
-    // If sim date has passed train's departure date/hour, train has left!
-    if (simDate.getDate() > 9 && train.deptHour < simHour) {
-      // Train departed!
-    }
 
     if (filterTimeSlot === 'EARLY' && !(train.deptHour >= 0 && train.deptHour < 6)) return false;
     if (filterTimeSlot === 'MORNING' && !(train.deptHour >= 6 && train.deptHour < 12)) return false;
@@ -346,88 +424,98 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
               </button>
             </div>
           ) : (
-            filteredTrains.map(train => (
-              <div key={train.id} style={{ background: '#ffffff', borderRadius: '12px', padding: '1.5rem', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                {/* TRAIN TITLE ROW */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.75rem' }}>
-                  <div>
-                    <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{train.number} - {train.name}</span>
-                    <span style={{ marginLeft: '1rem', fontSize: '0.75rem', background: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', color: '#475569' }}>Runs: {train.days}</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: train.categoryColor, background: '#f1f5f9', padding: '0.25rem 0.65rem', borderRadius: '4px', fontWeight: 800 }}>
-                      {train.category}
-                    </span>
-                  </div>
-                </div>
-
-                {/* ROUTE TIMELINE ROW */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 1fr', alignItems: 'center', textAlign: 'center', marginBottom: '1.25rem' }}>
-                  <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a' }}>{train.deptTime}</div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{train.deptStation}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{train.deptCity}</div>
-                  </div>
-
-                  <div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>{train.duration}</div>
-                    <div style={{ height: '2px', background: '#cbd5e1', margin: '0.25rem 0', position: 'relative' }}>
-                      <div style={{ width: '8px', height: '8px', background: '#3aa459', borderRadius: '50%', position: 'absolute', top: '-3px', left: '50%', transform: 'translateX(-50%)' }} />
+            filteredTrains.map(train => {
+              const departed = isTrainDeparted(train);
+              return (
+                <div key={train.id} style={{ background: '#ffffff', borderRadius: '12px', padding: '1.5rem', border: departed ? '1px solid #fca5a5' : '1px solid #e2e8f0', opacity: departed ? 0.7 : 1, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  {/* TRAIN TITLE ROW */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.75rem' }}>
+                    <div>
+                      <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{train.number} - {train.name}</span>
+                      <span style={{ marginLeft: '1rem', fontSize: '0.75rem', background: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', color: '#475569' }}>Runs: {train.days}</span>
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Direct</div>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      {departed ? (
+                        <span style={{ fontSize: '0.75rem', color: '#dc2626', background: '#fef2f2', border: '1px solid #fca5a5', padding: '0.25rem 0.65rem', borderRadius: '4px', fontWeight: 800 }}>
+                          DEPARTED - BOOKING CLOSED
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', color: train.categoryColor, background: '#f1f5f9', padding: '0.25rem 0.65rem', borderRadius: '4px', fontWeight: 800 }}>
+                          {train.category}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a' }}>{train.arrTime}</div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{train.arrStation}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{train.arrCity}</div>
-                  </div>
-                </div>
+                  {/* ROUTE TIMELINE ROW */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 1fr', alignItems: 'center', textAlign: 'center', marginBottom: '1.25rem' }}>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a' }}>{train.deptTime}</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{train.deptStation}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{train.deptCity}</div>
+                    </div>
 
-                {/* CLASS MATRIX ROW (DYNAMICALLY UPDATING SEATS BASED ON ACCELERATED SIM-CLOCK) */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                  {train.visibleClasses.map(cls => {
-                    const dynStat = getDynamicSeatStatus(train, cls.code);
-                    const price = selectedQuota === 'TATKAL' ? cls.price + 350 : cls.price;
-
-                    return (
-                      <div key={cls.code} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                        <div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                            <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>{cls.code}</span>
-                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>₹{price}</span>
-                          </div>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: dynStat.color, marginBottom: '0.25rem' }}>
-                            {dynStat.status}
-                          </div>
-                          <div style={{ fontSize: '0.7rem', color: '#059669', background: '#ecfdf5', padding: '0.15rem 0.4rem', borderRadius: '4px', display: 'inline-block', fontWeight: 700 }}>
-                            {dynStat.cnf}
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => onSelectClassForBooking(train, { ...cls, price })}
-                          style={{
-                            marginTop: '0.75rem',
-                            background: dynStat.avail ? '#3aa459' : '#e2e8f0',
-                            color: dynStat.avail ? '#ffffff' : '#64748b',
-                            border: 'none',
-                            padding: '0.45rem',
-                            borderRadius: '6px',
-                            fontWeight: 800,
-                            fontSize: '0.8rem',
-                            cursor: dynStat.avail ? 'pointer' : 'not-allowed',
-                            width: '100%'
-                          }}
-                        >
-                          {dynStat.avail ? 'BOOK' : 'NOT AVAIL'}
-                        </button>
+                    <div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>{train.duration}</div>
+                      <div style={{ height: '2px', background: '#cbd5e1', margin: '0.25rem 0', position: 'relative' }}>
+                        <div style={{ width: '8px', height: '8px', background: '#3aa459', borderRadius: '50%', position: 'absolute', top: '-3px', left: '50%', transform: 'translateX(-50%)' }} />
                       </div>
-                    );
-                  })}
+                      <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Direct</div>
+                    </div>
+
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a' }}>{train.arrTime}</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{train.arrStation}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{train.arrCity}</div>
+                    </div>
+                  </div>
+
+                  {/* CLASS MATRIX ROW */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                    {train.visibleClasses.map(cls => {
+                      const dynStat = getDynamicSeatStatus(train, cls.code);
+                      const price = selectedQuota === 'TATKAL' ? cls.price + 350 : cls.price;
+
+                      return (
+                        <div key={cls.code} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                              <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>{cls.code}</span>
+                              <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>₹{price}</span>
+                            </div>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 800, color: dynStat.color, marginBottom: '0.25rem' }}>
+                              {dynStat.status}
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: dynStat.departed ? '#dc2626' : '#059669', background: dynStat.departed ? '#fef2f2' : '#ecfdf5', padding: '0.15rem 0.4rem', borderRadius: '4px', display: 'inline-block', fontWeight: 700 }}>
+                              {dynStat.cnf}
+                            </div>
+                          </div>
+
+                          <button
+                            disabled={!dynStat.avail || dynStat.departed}
+                            onClick={() => onSelectClassForBooking(train, { ...cls, price })}
+                            style={{
+                              marginTop: '0.75rem',
+                              background: (dynStat.avail && !dynStat.departed) ? '#3aa459' : '#e2e8f0',
+                              color: (dynStat.avail && !dynStat.departed) ? '#ffffff' : '#64748b',
+                              border: 'none',
+                              padding: '0.45rem',
+                              borderRadius: '6px',
+                              fontWeight: 800,
+                              fontSize: '0.8rem',
+                              cursor: (dynStat.avail && !dynStat.departed) ? 'pointer' : 'not-allowed',
+                              width: '100%'
+                            }}
+                          >
+                            {(dynStat.avail && !dynStat.departed) ? 'BOOK' : (dynStat.departed ? 'DEPARTED' : 'NOT AVAIL')}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </main>
       </div>
