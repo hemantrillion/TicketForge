@@ -1,27 +1,24 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useSimulationClock } from '../context/SimulationClockContext';
 
 const API_BASE = 'http://localhost:5000/api';
 
 export default function PnrStatusPage() {
-  const [pnrInput, setPnrInput] = useState('284-9876541');
-  const [pnrResult, setPnrResult] = useState({
-    pnr: '284-9876541',
-    trainNumber: '12951',
-    trainName: 'MUMBAI RAJDHANI EXP',
-    fromStation: 'NDLS - New Delhi',
-    toStation: 'MMCT - Mumbai Central',
-    date: 'Sun, 09 Aug 2026',
-    passengers: [
-      { name: 'Rahul Sharma', bookingStatus: 'CNF / Coach B1 / Seat 24 (LB)', currentStatus: 'CNF', cnfChance: '100%' }
-    ],
-    chartStatus: 'CHART NOT PREPARED'
-  });
+  const { simDate } = useSimulationClock();
+  const [pnrInput, setPnrInput] = useState('');
+  const [pnrResult, setPnrResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const simDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const simMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const activeSimDateStr = `${simDayNames[simDate.getDay()]}, ${simDate.getDate().toString().padStart(2, '0')} ${simMonthNames[simDate.getMonth()]}`;
+
   const handlePnrSearch = async (e) => {
     e.preventDefault();
+    if (!pnrInput.trim()) return;
+
     setError('');
     setLoading(true);
 
@@ -31,28 +28,17 @@ export default function PnrStatusPage() {
         pnr: res.data.pnr || pnrInput,
         trainNumber: res.data.event ? res.data.event.number : '12951',
         trainName: res.data.event ? res.data.event.title : 'MUMBAI RAJDHANI EXP',
-        fromStation: 'NDLS - New Delhi',
-        toStation: 'MMCT - Mumbai Central',
-        date: 'Sun, 09 Aug 2026',
+        fromStation: res.data.from_station || 'NDLS - New Delhi',
+        toStation: res.data.to_station || 'MMCT - Mumbai Central',
+        date: activeSimDateStr,
         passengers: [
-          { name: res.data.passenger_name || 'Rahul Sharma', bookingStatus: 'CNF / Coach B1 / Seat 24 (LB)', currentStatus: 'CNF', cnfChance: '100%' }
+          { name: res.data.passenger_name || 'Passenger 1', bookingStatus: 'CNF / Coach B1 / Seat 24 (LB)', currentStatus: 'CNF', cnfChance: '100%' }
         ],
         chartStatus: 'CHART NOT PREPARED'
       });
     } catch (err) {
-      // Fallback mock PNR result if backend PNR is custom generated
-      setPnrResult({
-        pnr: pnrInput,
-        trainNumber: '12951',
-        trainName: 'MUMBAI RAJDHANI EXP',
-        fromStation: 'NDLS - New Delhi',
-        toStation: 'MMCT - Mumbai Central',
-        date: 'Sun, 09 Aug 2026',
-        passengers: [
-          { name: 'Rahul Sharma', bookingStatus: 'CNF / Coach B1 / Seat 24 (LB)', currentStatus: 'CNF', cnfChance: '100%' }
-        ],
-        chartStatus: 'CHART NOT PREPARED'
-      });
+      setError('PNR not found in PostgreSQL database. Enter a valid PNR generated from a booking.');
+      setPnrResult(null);
     } finally {
       setLoading(false);
     }
@@ -70,7 +56,7 @@ export default function PnrStatusPage() {
             <input
               className="ct-form-input"
               style={{ maxWidth: '400px' }}
-              placeholder="Enter 10-Digit PNR Number"
+              placeholder="Enter 10-Digit PNR Number (e.g. 284-XXXXXXX)"
               value={pnrInput}
               onChange={(e) => setPnrInput(e.target.value)}
               required
