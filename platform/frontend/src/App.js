@@ -6,13 +6,15 @@ import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import SearchResultsPage from './pages/SearchResultsPage';
 import CoachSeatPage from './pages/CoachSeatPage';
+import SimulationControlWidget from './components/ui/simulation/SimulationControlWidget';
+import { SimulationClockProvider } from './context/SimulationClockContext';
 
 const API_BASE = 'http://localhost:5000/api';
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-function App() {
+function AppContent() {
   const [currentPage, setCurrentPage] = useState('home'); // 'home' | 'results' | 'berths' | 'pnr' | 'running' | 'schedule'
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
@@ -205,6 +207,9 @@ function App() {
 
   return (
     <div>
+      {/* SIMULATION CONTROL WIDGET FLOATING BAR */}
+      <SimulationControlWidget />
+
       <Header
         user={user}
         currentPage={currentPage}
@@ -312,4 +317,10 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <SimulationClockProvider>
+      <AppContent />
+    </SimulationClockProvider>
+  );
+}
