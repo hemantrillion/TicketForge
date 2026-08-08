@@ -1,238 +1,6 @@
 import React, { useState } from 'react';
 import { useSimulationClock } from '../context/SimulationClockContext';
-
-const DUMMY_TRAINS = [
-  // EARLY MORNING TRAINS (00:00 - 06:00 AM)
-  {
-    id: '12952',
-    number: '12952',
-    name: 'MUMBAI AUGUST EXPRESS',
-    category: 'SUPERFAST EXPRESS',
-    categoryColor: '#2563eb',
-    days: 'M T W T F S S',
-    deptTime: '02:15',
-    deptHour: 2,
-    deptMin: 15,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '14h 15m',
-    arrTime: '16:30',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    baseAvail: { 3: 65, 2: 24, 1: 8 },
-    classes: [
-      { code: '3A', price: 1750 },
-      { code: '2A', price: 2540 },
-      { code: 'SL', price: 620 }
-    ]
-  },
-  {
-    id: '22210',
-    number: '22210',
-    name: 'DURONTO EXPRESS',
-    category: 'PREMIUM EXPRESS',
-    categoryColor: '#0284c7',
-    days: '- T - T - S -',
-    deptTime: '03:40',
-    deptHour: 3,
-    deptMin: 40,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '13h 35m',
-    arrTime: '17:15',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    baseAvail: { 3: 52, 2: 18, 1: 6 },
-    classes: [
-      { code: '3A', price: 2100 },
-      { code: '2A', price: 3050 }
-    ]
-  },
-  {
-    id: '12432',
-    number: '12432',
-    name: 'TRIVANDRUM RAJDHANI',
-    category: 'PREMIUM EXPRESS',
-    categoryColor: '#0284c7',
-    days: 'M - W T - - S',
-    deptTime: '05:10',
-    deptHour: 5,
-    deptMin: 10,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '15h 20m',
-    arrTime: '20:30',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    baseAvail: { 3: 40, 2: 12, 1: 4 },
-    classes: [
-      { code: '3A', price: 2180 },
-      { code: '2A', price: 3120 },
-      { code: '1A', price: 4950 }
-    ]
-  },
-  // MORNING TRAINS (06:00 - 12:00 AM)
-  {
-    id: '22436',
-    number: '22436',
-    name: 'VANDE BHARAT EXPRESS',
-    category: 'PREMIUM SEMI-HIGH SPEED',
-    categoryColor: '#7c3aed',
-    days: 'M T W T F S -',
-    deptTime: '06:00',
-    deptHour: 6,
-    deptMin: 0,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '12h 15m',
-    arrTime: '18:15',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    baseAvail: { 3: 84, 2: 20, 1: 10 },
-    classes: [
-      { code: 'CC', price: 1850 },
-      { code: 'EC', price: 3520 }
-    ]
-  },
-  {
-    id: '12002',
-    number: '12002',
-    name: 'SHATABDI EXPRESS',
-    category: 'PREMIUM EXPRESS',
-    categoryColor: '#0284c7',
-    days: 'M T W T F S S',
-    deptTime: '06:15',
-    deptHour: 6,
-    deptMin: 15,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '11h 50m',
-    arrTime: '18:05',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    baseAvail: { 3: 45, 2: 12, 1: 5 },
-    classes: [
-      { code: '3A', price: 1980 },
-      { code: '2A', price: 2890 },
-      { code: 'SL', price: 650 }
-    ]
-  },
-  {
-    id: '12953',
-    number: '12953',
-    name: 'AUGUST KRANTI RAJDHANI',
-    category: 'PREMIUM EXPRESS',
-    categoryColor: '#0284c7',
-    days: 'M T W T F S S',
-    deptTime: '07:55',
-    deptHour: 7,
-    deptMin: 55,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '16h 05m',
-    arrTime: '00:00',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    baseAvail: { 3: 38, 2: 14, 1: 4 },
-    classes: [
-      { code: '3A', price: 2180 },
-      { code: '2A', price: 3150 },
-      { code: '1A', price: 4980 }
-    ]
-  },
-  {
-    id: '12472',
-    number: '12472',
-    name: 'SWARAJ EXPRESS',
-    category: 'SUPERFAST EXPRESS',
-    categoryColor: '#2563eb',
-    days: '- T W - F S -',
-    deptTime: '08:40',
-    deptHour: 8,
-    deptMin: 40,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '21h 30m',
-    arrTime: '06:10',
-    arrStation: 'BDTS',
-    arrCity: 'Mumbai Bandra',
-    baseAvail: { 3: 95, 2: 42, 1: 10 },
-    classes: [
-      { code: 'SL', price: 680 },
-      { code: '3A', price: 1780 },
-      { code: '2A', price: 2560 }
-    ]
-  },
-  {
-    id: '12926',
-    number: '12926',
-    name: 'PASCHIM EXPRESS',
-    category: 'MAIL / EXPRESS',
-    categoryColor: '#475569',
-    days: 'M T W T F S S',
-    deptTime: '10:00',
-    deptHour: 10,
-    deptMin: 0,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '23h 25m',
-    arrTime: '09:25',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    baseAvail: { 3: 110, 2: 50, 1: 12 },
-    classes: [
-      { code: 'SL', price: 640 },
-      { code: '3A', price: 1710 },
-      { code: '2A', price: 2480 }
-    ]
-  },
-  {
-    id: '12951',
-    number: '12951',
-    name: 'MUMBAI RAJDHANI EXP',
-    category: 'PREMIUM EXPRESS',
-    categoryColor: '#0284c7',
-    days: 'M T W T F S S',
-    deptTime: '16:55',
-    deptHour: 16,
-    deptMin: 55,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '15h 40m',
-    arrTime: '08:35',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    baseAvail: { 3: 42, 2: 18, 1: 6 },
-    classes: [
-      { code: '3A', price: 2150 },
-      { code: '2A', price: 3105 },
-      { code: '1A', price: 4950 }
-    ]
-  },
-  {
-    id: '12626',
-    number: '12626',
-    name: 'KERALA EXPRESS',
-    category: 'SUPERFAST EXPRESS',
-    categoryColor: '#2563eb',
-    days: 'M T W T F S S',
-    deptTime: '20:10',
-    deptHour: 20,
-    deptMin: 10,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '18h 30m',
-    arrTime: '14:40',
-    arrStation: 'MMCT',
-    arrCity: 'Mumbai Central',
-    baseAvail: { 3: 120, 2: 35, 1: 10 },
-    classes: [
-      { code: 'SL', price: 610 },
-      { code: '3A', price: 1650 },
-      { code: '2A', price: 2420 }
-    ]
-  }
-];
+import { REAL_INDIAN_RAILWAYS_TRAINS } from '../data/real_trains';
 
 export default function SearchResultsPage({ fromStation, toStation, displayDateStr, onSelectClassForBooking, onBackToHome }) {
   const { simDate } = useSimulationClock();
@@ -248,7 +16,6 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
   // CHECK IF TRAIN HAS DEPARTED UNDER SIM TIME
   const isTrainDeparted = (train) => {
     const simTimeMs = simDate.getTime();
-    // Assuming journey date is 09 Aug 2026 baseline for comparison
     const trainDeptMs = new Date(2026, 7, 9, train.deptHour, train.deptMin, 0).getTime();
     return simTimeMs > trainDeptMs;
   };
@@ -276,7 +43,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
     }
   };
 
-  const filteredTrains = DUMMY_TRAINS.map(train => {
+  const filteredTrains = REAL_INDIAN_RAILWAYS_TRAINS.map(train => {
     const matchingClasses = train.classes.filter(c => {
       if (filterAcOnly && !['3A', '2A', '1A', 'CC', 'EC'].includes(c.code)) {
         return false;
@@ -316,7 +83,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
               {fromStation} ➔ {toStation}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              Sim Date: <strong style={{ color: '#0284c7' }}>{activeSimDateStr}</strong> • {filteredTrains.length} Trains Found
+              Sim Date: <strong style={{ color: '#0284c7' }}>{activeSimDateStr}</strong> • {filteredTrains.length} Real Trains Found
             </div>
           </div>
         </div>
