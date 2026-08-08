@@ -13,10 +13,11 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
   const simMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const activeSimDateStr = `${simDayNames[simDate.getDay()]}, ${simDate.getDate().toString().padStart(2, '0')} ${simMonthNames[simDate.getMonth()]}`;
 
-  // CHECK IF TRAIN HAS DEPARTED UNDER SIM TIME
+  // EXACT FIX: CHECK IF TRAIN HAS DEPARTED RELATIVE TO SIM DATE & TIME TODAY
   const isTrainDeparted = (train) => {
     const simTimeMs = simDate.getTime();
-    const trainDeptMs = new Date(2026, 7, 9, train.deptHour, train.deptMin, 0).getTime();
+    // Build departure timestamp for the train on the CURRENT simDate day!
+    const trainDeptMs = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), train.deptHour, train.deptMin, 0).getTime();
     return simTimeMs > trainDeptMs;
   };
 
@@ -27,7 +28,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
     }
 
     const baseCount = (train.baseAvail && train.baseAvail[3]) ? train.baseAvail[3] : 42;
-    const baseTime = new Date(2026, 7, 9, 6, 0, 0).getTime();
+    const baseTime = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), 6, 0, 0).getTime();
     const currentSimTime = simDate.getTime();
     const simHoursElapsed = Math.max(0, (currentSimTime - baseTime) / (1000 * 60 * 60));
 
