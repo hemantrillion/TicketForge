@@ -6,7 +6,6 @@ const API_BASE = 'http://localhost:5000/api';
 
 // GENERATE SEEDED & DYNAMIC OCCUPANCY FOR 3A / SL (72 BERTHS - 9 BAYS OF 8 BERTHS)
 const GENERATE_DYNAMIC_3A_BAYS = (trainId, coachId, simHoursElapsed) => {
-  // Simple deterministic seed generator based on trainId and coachId
   const seedString = `${trainId || '12951'}-${coachId || 'B1'}`;
   let seed = 0;
   for (let i = 0; i < seedString.length; i++) {
@@ -15,7 +14,6 @@ const GENERATE_DYNAMIC_3A_BAYS = (trainId, coachId, simHoursElapsed) => {
   }
   const pseudoRandom = (offset) => Math.abs(Math.sin(seed + offset));
 
-  // Determine base occupied seats based on seed
   const initialOccupiedSet = new Set();
   for (let s = 1; s <= 72; s++) {
     if (pseudoRandom(s) > 0.65) {
@@ -23,7 +21,6 @@ const GENERATE_DYNAMIC_3A_BAYS = (trainId, coachId, simHoursElapsed) => {
     }
   }
 
-  // Dynamically fill additional berths in groups (1-4 seats) as simHoursElapsed advances
   const dynamicBookingsCount = Math.floor(simHoursElapsed * 1.5);
   for (let step = 1; step <= dynamicBookingsCount; step++) {
     const seatToOccupy = Math.floor(pseudoRandom(step * 7) * 72) + 1;
@@ -112,6 +109,9 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [timerSeconds, setTimerSeconds] = useState(300);
 
+  // Departed Modal State
+  const [showDepartedKickout, setShowDepartedKickout] = useState(false);
+
   // Form & Ticket State
   const [showPassengerModal, setShowPassengerModal] = useState(false);
   const [irctcUser, setIrctcUser] = useState('irctc_user_2026');
@@ -120,6 +120,18 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [generatedTicket, setGeneratedTicket] = useState(null);
   const [bookingLoading, setBookingLoading] = useState(false);
+
+  // DYNAMIC DEPARTURE KICK-OUT MECHANIC:
+  // If Accelerated Sim-Clock passes train departure time while user is on this page!
+  useEffect(() => {
+    if (!train) return;
+    const simTimeMs = simDate.getTime();
+    const trainDeptMs = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), train.deptHour || 16, train.deptMin || 55, 0).getTime();
+    
+    if (simTimeMs > trainDeptMs) {
+      setShowDepartedKickout(true);
+    }
+  }, [simDate, train]);
 
   // 5-Minute Timer
   useEffect(() => {
@@ -210,7 +222,6 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
   const basePrice = selectedClass ? selectedClass.price : 2150;
   const totalPrice = basePrice * passengerCount + (optFreeCancel ? 199 * passengerCount : 0);
 
-  // CALCULATE SIM HOURS ELAPSED TO DRIVE REAL-TIME DYNAMIC SEAT OCCUPANCY
   const baseTime = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), 6, 0, 0).getTime();
   const currentSimTime = simDate.getTime();
   const simHoursElapsed = Math.max(0, (currentSimTime - baseTime) / (1000 * 60 * 60));
@@ -450,6 +461,26 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
           </div>
         </div>
       </div>
+
+      {/* DYNAMIC DEPARTED KICK-OUT MODAL */}
+      {showDepartedKickout && (
+        <div className="ct-modal-bg">
+          <div className="ct-auth-modal" style={{ maxWidth: '480px', textAlign: 'center' }}>
+            <div style={{ background: '#fef2f2', color: '#dc2626', padding: '0.75rem', borderRadius: '8px', fontWeight: 900, fontSize: '1.1rem', marginBottom: '1rem' }}>
+              ⚠️ TRAIN DEPARTED - BOOKING CLOSED
+            </div>
+            <p style={{ fontSize: '0.9rem', color: '#334155', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+              Train <strong>{train ? train.number : '12951'} {train ? train.name : 'MUMBAI RAJDHANI EXP'}</strong> has departed station under Simulated Time. Ticket reservation for this train is now closed.
+            </p>
+            <button
+              onClick={() => { setShowDepartedKickout(false); onBackToResults(); }}
+              className="ct-auth-submit"
+            >
+              Return to Train Search Results →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* PASSENGER DETAILS MODAL */}
       {showPassengerModal && (
