@@ -65,7 +65,7 @@ export default function SimulationControlWidget() {
                   transition: 'all 0.2s ease'
                 }}
               >
-                {s}x {s === 24 ? '(1m=1d)' : ''}
+                {s}x
               </button>
             ))}
           </div>
