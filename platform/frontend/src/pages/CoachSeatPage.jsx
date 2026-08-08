@@ -96,7 +96,7 @@ const GENERATE_DYNAMIC_2A_BAYS = (trainId, coachId, simHoursElapsed) => {
   return bays;
 };
 
-export default function CoachSeatPage({ train, selectedClass, fromStation, toStation, displayDateStr, onBackToResults, user }) {
+export default function CoachSeatPage({ train, selectedClass, fromStation, toStation, journeyDate, displayDateStr, onBackToResults, user }) {
   const { simDate } = useSimulationClock();
   const classCode = selectedClass ? selectedClass.code : '3A';
   
@@ -122,16 +122,19 @@ export default function CoachSeatPage({ train, selectedClass, fromStation, toSta
   const [bookingLoading, setBookingLoading] = useState(false);
 
   // DYNAMIC DEPARTURE KICK-OUT MECHANIC:
-  // If Accelerated Sim-Clock passes train departure time while user is on this page!
+  // ONLY kick out if system time A0 (simDate) has reached/passed B0's exact departure date and time!
   useEffect(() => {
     if (!train) return;
     const simTimeMs = simDate.getTime();
-    const trainDeptMs = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), train.deptHour || 16, train.deptMin || 55, 0).getTime();
+    
+    // Parse target journey date B0 (e.g. 13 Aug 2026)
+    const targetB0 = journeyDate || new Date(2026, 7, 13);
+    const trainDeptMs = new Date(targetB0.getFullYear(), targetB0.getMonth(), targetB0.getDate(), train.deptHour || 16, train.deptMin || 55, 0).getTime();
     
     if (simTimeMs > trainDeptMs) {
       setShowDepartedKickout(true);
     }
-  }, [simDate, train]);
+  }, [simDate, train, journeyDate]);
 
   // 5-Minute Timer
   useEffect(() => {
