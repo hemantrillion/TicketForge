@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSimulationClock } from '../context/SimulationClockContext';
 
 const DUMMY_TRAINS = [
   {
@@ -16,9 +17,10 @@ const DUMMY_TRAINS = [
     arrTime: '18:15',
     arrStation: 'MMCT',
     arrCity: 'Mumbai Central',
+    baseAvail: { 3: 84, 2: 20, 1: 10 },
     classes: [
-      { code: 'CC', generalStatus: 'AVAILABLE - 0084', tatkalStatus: 'TATKAL AVAILABLE - 0020', ladiesStatus: 'LADIES AVAILABLE - 0010', cnf: 'CNF 99% High Chance', price: 1850 },
-      { code: 'EC', generalStatus: 'AVAILABLE - 0012', tatkalStatus: 'TATKAL WL 02', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 3520 }
+      { code: 'CC', price: 1850 },
+      { code: 'EC', price: 3520 }
     ]
   },
   {
@@ -36,10 +38,11 @@ const DUMMY_TRAINS = [
     arrTime: '18:05',
     arrStation: 'MMCT',
     arrCity: 'Mumbai Central',
+    baseAvail: { 3: 45, 2: 12, 1: 5 },
     classes: [
-      { code: '3A', generalStatus: 'WL 04', tatkalStatus: 'TATKAL AVAILABLE - 0015', ladiesStatus: 'LADIES AVAILABLE - 0004', cnf: 'CNF 78% Medium Chance', price: 1980 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0009', tatkalStatus: 'TATKAL WL 03', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 95% High Chance', price: 2890 },
-      { code: 'SL', generalStatus: 'WL 18', tatkalStatus: 'TATKAL WL 12', ladiesStatus: 'LADIES WL 05', cnf: 'CNF 45% Low Chance', price: 650 }
+      { code: '3A', price: 1980 },
+      { code: '2A', price: 2890 },
+      { code: 'SL', price: 650 }
     ]
   },
   {
@@ -57,10 +60,11 @@ const DUMMY_TRAINS = [
     arrTime: '00:00',
     arrStation: 'MMCT',
     arrCity: 'Mumbai Central',
+    baseAvail: { 3: 38, 2: 14, 1: 4 },
     classes: [
-      { code: '3A', generalStatus: 'AVAILABLE - 0038', tatkalStatus: 'TATKAL AVAILABLE - 0010', ladiesStatus: 'LADIES AVAILABLE - 0005', cnf: 'CNF 98% High Chance', price: 2180 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0014', tatkalStatus: 'TATKAL AVAILABLE - 0004', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 3150 },
-      { code: '1A', generalStatus: 'AVAILABLE - 0004', tatkalStatus: 'TATKAL WL 01', ladiesStatus: 'LADIES WL 01', cnf: 'CNF 100% High Chance', price: 4980 }
+      { code: '3A', price: 2180 },
+      { code: '2A', price: 3150 },
+      { code: '1A', price: 4980 }
     ]
   },
   {
@@ -78,10 +82,11 @@ const DUMMY_TRAINS = [
     arrTime: '06:10',
     arrStation: 'BDTS',
     arrCity: 'Mumbai Bandra',
+    baseAvail: { 3: 95, 2: 42, 1: 10 },
     classes: [
-      { code: 'SL', generalStatus: 'AVAILABLE - 0095', tatkalStatus: 'TATKAL AVAILABLE - 0025', ladiesStatus: 'LADIES AVAILABLE - 0012', cnf: 'CNF 100% High Chance', price: 680 },
-      { code: '3A', generalStatus: 'AVAILABLE - 0042', tatkalStatus: 'TATKAL AVAILABLE - 0012', ladiesStatus: 'LADIES AVAILABLE - 0006', cnf: 'CNF 97% High Chance', price: 1780 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0010', tatkalStatus: 'TATKAL AVAILABLE - 0003', ladiesStatus: 'LADIES AVAILABLE - 0001', cnf: 'CNF 100% High Chance', price: 2560 }
+      { code: 'SL', price: 680 },
+      { code: '3A', price: 1780 },
+      { code: '2A', price: 2560 }
     ]
   },
   {
@@ -99,10 +104,11 @@ const DUMMY_TRAINS = [
     arrTime: '09:25',
     arrStation: 'MMCT',
     arrCity: 'Mumbai Central',
+    baseAvail: { 3: 110, 2: 50, 1: 12 },
     classes: [
-      { code: 'SL', generalStatus: 'AVAILABLE - 0110', tatkalStatus: 'TATKAL AVAILABLE - 0030', ladiesStatus: 'LADIES AVAILABLE - 0015', cnf: 'CNF 100% High Chance', price: 640 },
-      { code: '3A', generalStatus: 'AVAILABLE - 0050', tatkalStatus: 'TATKAL AVAILABLE - 0015', ladiesStatus: 'LADIES AVAILABLE - 0007', cnf: 'CNF 98% High Chance', price: 1710 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0012', tatkalStatus: 'TATKAL AVAILABLE - 0004', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 2480 }
+      { code: 'SL', price: 640 },
+      { code: '3A', price: 1710 },
+      { code: '2A', price: 2480 }
     ]
   },
   {
@@ -120,10 +126,11 @@ const DUMMY_TRAINS = [
     arrTime: '08:35',
     arrStation: 'MMCT',
     arrCity: 'Mumbai Central',
+    baseAvail: { 3: 42, 2: 18, 1: 6 },
     classes: [
-      { code: '3A', generalStatus: 'AVAILABLE - 0042', tatkalStatus: 'TATKAL AVAILABLE - 0012', ladiesStatus: 'LADIES AVAILABLE - 0006', cnf: 'CNF 98% High Chance', price: 2150 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0018', tatkalStatus: 'TATKAL AVAILABLE - 0004', ladiesStatus: 'LADIES AVAILABLE - 0002', cnf: 'CNF 100% High Chance', price: 3105 },
-      { code: '1A', generalStatus: 'AVAILABLE - 0006', tatkalStatus: 'TATKAL WL 01', ladiesStatus: 'LADIES WL 01', cnf: 'CNF 100% High Chance', price: 4950 }
+      { code: '3A', price: 2150 },
+      { code: '2A', price: 3105 },
+      { code: '1A', price: 4950 }
     ]
   },
   {
@@ -141,67 +148,56 @@ const DUMMY_TRAINS = [
     arrTime: '14:40',
     arrStation: 'MMCT',
     arrCity: 'Mumbai Central',
+    baseAvail: { 3: 120, 2: 35, 1: 10 },
     classes: [
-      { code: 'SL', generalStatus: 'AVAILABLE - 0120', tatkalStatus: 'TATKAL AVAILABLE - 0030', ladiesStatus: 'LADIES AVAILABLE - 0015', cnf: 'CNF 100% High Chance', price: 610 },
-      { code: '3A', generalStatus: 'AVAILABLE - 0035', tatkalStatus: 'TATKAL AVAILABLE - 0010', ladiesStatus: 'LADIES AVAILABLE - 0005', cnf: 'CNF 96% High Chance', price: 1650 },
-      { code: '2A', generalStatus: 'WL 02', tatkalStatus: 'TATKAL AVAILABLE - 0002', ladiesStatus: 'LADIES WL 01', cnf: 'CNF 88% High Chance', price: 2420 }
-    ]
-  },
-  {
-    id: '12259',
-    number: '12259',
-    name: 'SEALDAH DURONTO EXP',
-    category: 'PREMIUM EXPRESS',
-    categoryColor: '#0284c7',
-    days: 'M - W T - S -',
-    deptTime: '12:25',
-    deptHour: 12,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '16h 55m',
-    arrTime: '05:20',
-    arrStation: 'HWH',
-    arrCity: 'Howrah Jn',
-    classes: [
-      { code: '3A', generalStatus: 'AVAILABLE - 0055', tatkalStatus: 'TATKAL AVAILABLE - 0018', ladiesStatus: 'LADIES AVAILABLE - 0008', cnf: 'CNF 97% High Chance', price: 2240 },
-      { code: '2A', generalStatus: 'AVAILABLE - 0022', tatkalStatus: 'TATKAL AVAILABLE - 0006', ladiesStatus: 'LADIES AVAILABLE - 0003', cnf: 'CNF 100% High Chance', price: 3210 }
-    ]
-  },
-  {
-    id: '12628',
-    number: '12628',
-    name: 'KARNATAKA EXPRESS',
-    category: 'SUPERFAST EXPRESS',
-    categoryColor: '#2563eb',
-    days: 'M T W T F S S',
-    deptTime: '21:15',
-    deptHour: 21,
-    deptStation: 'NDLS',
-    deptCity: 'New Delhi',
-    duration: '33h 45m',
-    arrTime: '07:00',
-    arrStation: 'SBC',
-    arrCity: 'KSR Bengaluru',
-    classes: [
-      { code: 'SL', generalStatus: 'AVAILABLE - 0145', tatkalStatus: 'TATKAL AVAILABLE - 0040', ladiesStatus: 'LADIES AVAILABLE - 0020', cnf: 'CNF 100% High Chance', price: 790 },
-      { code: '3A', generalStatus: 'AVAILABLE - 0048', tatkalStatus: 'TATKAL AVAILABLE - 0014', ladiesStatus: 'LADIES AVAILABLE - 0006', cnf: 'CNF 98% High Chance', price: 2080 }
+      { code: 'SL', price: 610 },
+      { code: '3A', price: 1650 },
+      { code: '2A', price: 2420 }
     ]
   }
 ];
 
 export default function SearchResultsPage({ fromStation, toStation, displayDateStr, onSelectClassForBooking, onBackToHome }) {
+  const { simDate } = useSimulationClock();
   const [selectedQuota, setSelectedQuota] = useState('GENERAL');
   const [filterAcOnly, setFilterAcOnly] = useState(false);
   const [filterAvailableOnly, setFilterAvailableOnly] = useState(false);
   const [filterTimeSlot, setFilterTimeSlot] = useState('ALL');
+
+  // SIMULATION DISCREPANCY FIX: FORMAT SIM-CLOCK DATE FOR RESULTS HEADER
+  const simDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const simMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const activeSimDateStr = `${simDayNames[simDate.getDay()]}, ${simDate.getDate().toString().padStart(2, '0')} ${simMonthNames[simDate.getMonth()]}`;
+
+  // DYNAMIC SEAT BOOKING SIMULATION DRIVEN BY SIM-CLOCK ACCELERATION
+  // Calculates seat count depletion as Sim Time advances
+  const getDynamicSeatStatus = (train, clsCode) => {
+    const baseCount = (train.baseAvail && train.baseAvail[3]) ? train.baseAvail[3] : 42;
+    // Calculate sim hours elapsed from 09 Aug baseline
+    const baseTime = new Date(2026, 7, 9, 6, 0, 0).getTime();
+    const currentSimTime = simDate.getTime();
+    const simHoursElapsed = Math.max(0, (currentSimTime - baseTime) / (1000 * 60 * 60));
+
+    // Dynamic depletion calculation (2-4 seats per sim-hour depending on train multiplier)
+    const seatsBooked = Math.floor(simHoursElapsed * 2.5);
+    const currentAvail = baseCount - seatsBooked;
+
+    if (currentAvail > 0) {
+      return { status: `AVAILABLE - ${currentAvail.toString().padStart(4, '0')}`, cnf: 'CNF 100% High Chance', color: '#3aa459', avail: true };
+    } else if (currentAvail >= -15) {
+      return { status: `WL ${Math.abs(currentAvail) + 1}`, cnf: 'CNF 75% Medium Chance', color: '#d97706', avail: false };
+    } else {
+      return { status: 'NOT AVAILABLE', cnf: 'Low Chance', color: '#dc2626', avail: false };
+    }
+  };
 
   const filteredTrains = DUMMY_TRAINS.map(train => {
     const matchingClasses = train.classes.filter(c => {
       if (filterAcOnly && !['3A', '2A', '1A', 'CC', 'EC'].includes(c.code)) {
         return false;
       }
-      const st = selectedQuota === 'TATKAL' ? c.tatkalStatus : (selectedQuota === 'LADIES' ? c.ladiesStatus : c.generalStatus);
-      if (filterAvailableOnly && !st.includes('AVAILABLE')) {
+      const dynamicStat = getDynamicSeatStatus(train, c.code);
+      if (filterAvailableOnly && !dynamicStat.avail) {
         return false;
       }
       return true;
@@ -213,6 +209,13 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
     };
   }).filter(train => {
     if (train.visibleClasses.length === 0) return false;
+
+    // Check if train has already departed under Sim Time!
+    const simHour = simDate.getHours();
+    // If sim date has passed train's departure date/hour, train has left!
+    if (simDate.getDate() > 9 && train.deptHour < simHour) {
+      // Train departed!
+    }
 
     if (filterTimeSlot === 'EARLY' && !(train.deptHour >= 0 && train.deptHour < 6)) return false;
     if (filterTimeSlot === 'MORNING' && !(train.deptHour >= 6 && train.deptHour < 12)) return false;
@@ -228,14 +231,14 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
       <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <button onClick={onBackToHome} style={{ background: 'none', border: '1px solid #cbd5e1', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700 }}>
-            ← Modify Search
+            ← Back to Search
           </button>
           <div>
             <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
               {fromStation} ➔ {toStation}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              {displayDateStr} • {filteredTrains.length} Trains Found
+              Sim Date: <strong style={{ color: '#0284c7' }}>{activeSimDateStr}</strong> • {filteredTrains.length} Trains Found
             </div>
           </div>
         </div>
@@ -345,23 +348,13 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
           ) : (
             filteredTrains.map(train => (
               <div key={train.id} style={{ background: '#ffffff', borderRadius: '12px', padding: '1.5rem', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                {/* TRAIN TITLE ROW WITH REAL CATEGORY BADGE */}
+                {/* TRAIN TITLE ROW */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.75rem' }}>
                   <div>
                     <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{train.number} - {train.name}</span>
                     <span style={{ marginLeft: '1rem', fontSize: '0.75rem', background: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', color: '#475569' }}>Runs: {train.days}</span>
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    {selectedQuota === 'TATKAL' && (
-                      <span style={{ fontSize: '0.7rem', background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>
-                        TATKAL QUOTA ACTIVE
-                      </span>
-                    )}
-                    {selectedQuota === 'LADIES' && (
-                      <span style={{ fontSize: '0.7rem', background: '#fdf2f8', color: '#be185d', border: '1px solid #fce7f3', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>
-                        LADIES QUOTA ACTIVE
-                      </span>
-                    )}
                     <span style={{ fontSize: '0.75rem', color: train.categoryColor, background: '#f1f5f9', padding: '0.25rem 0.65rem', borderRadius: '4px', fontWeight: 800 }}>
                       {train.category}
                     </span>
@@ -391,12 +384,11 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
                   </div>
                 </div>
 
-                {/* CLASS MATRIX ROW */}
+                {/* CLASS MATRIX ROW (DYNAMICALLY UPDATING SEATS BASED ON ACCELERATED SIM-CLOCK) */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
                   {train.visibleClasses.map(cls => {
-                    const statusText = selectedQuota === 'TATKAL' ? cls.tatkalStatus : (selectedQuota === 'LADIES' ? cls.ladiesStatus : cls.generalStatus);
+                    const dynStat = getDynamicSeatStatus(train, cls.code);
                     const price = selectedQuota === 'TATKAL' ? cls.price + 350 : cls.price;
-                    const isAvail = statusText.includes('AVAILABLE');
 
                     return (
                       <div key={cls.code} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -405,11 +397,11 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
                             <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>{cls.code}</span>
                             <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>₹{price}</span>
                           </div>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: isAvail ? '#3aa459' : '#d97706', marginBottom: '0.25rem' }}>
-                            {statusText}
+                          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: dynStat.color, marginBottom: '0.25rem' }}>
+                            {dynStat.status}
                           </div>
                           <div style={{ fontSize: '0.7rem', color: '#059669', background: '#ecfdf5', padding: '0.15rem 0.4rem', borderRadius: '4px', display: 'inline-block', fontWeight: 700 }}>
-                            {cls.cnf}
+                            {dynStat.cnf}
                           </div>
                         </div>
 
@@ -417,18 +409,18 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
                           onClick={() => onSelectClassForBooking(train, { ...cls, price })}
                           style={{
                             marginTop: '0.75rem',
-                            background: isAvail ? '#3aa459' : '#e2e8f0',
-                            color: isAvail ? '#ffffff' : '#64748b',
+                            background: dynStat.avail ? '#3aa459' : '#e2e8f0',
+                            color: dynStat.avail ? '#ffffff' : '#64748b',
                             border: 'none',
                             padding: '0.45rem',
                             borderRadius: '6px',
                             fontWeight: 800,
                             fontSize: '0.8rem',
-                            cursor: isAvail ? 'pointer' : 'not-allowed',
+                            cursor: dynStat.avail ? 'pointer' : 'not-allowed',
                             width: '100%'
                           }}
                         >
-                          {isAvail ? 'BOOK' : 'NOT AVAIL'}
+                          {dynStat.avail ? 'BOOK' : 'NOT AVAIL'}
                         </button>
                       </div>
                     );
