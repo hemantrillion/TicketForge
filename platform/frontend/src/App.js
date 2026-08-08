@@ -6,6 +6,9 @@ import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import SearchResultsPage from './pages/SearchResultsPage';
 import CoachSeatPage from './pages/CoachSeatPage';
+import TrainSchedulePage from './pages/TrainSchedulePage';
+import LiveRunningStatusPage from './pages/LiveRunningStatusPage';
+import PnrStatusPage from './pages/PnrStatusPage';
 import SimulationControlWidget from './components/ui/simulation/SimulationControlWidget';
 import { SimulationClockProvider } from './context/SimulationClockContext';
 
@@ -261,6 +264,18 @@ function AppContent() {
           onBackToResults={() => setCurrentPage('results')}
           user={user}
         />
+      )}
+
+      {currentPage === 'schedule' && (
+        <TrainSchedulePage />
+      )}
+
+      {currentPage === 'running' && (
+        <LiveRunningStatusPage />
+      )}
+
+      {currentPage === 'pnr' && (
+        <PnrStatusPage />
       )}
 
       <Footer />
