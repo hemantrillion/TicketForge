@@ -1,29 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSimulationClock } from '../context/SimulationClockContext';
 import { REAL_INDIAN_RAILWAYS_TRAINS } from '../data/real_trains';
 
-export default function SearchResultsPage({ fromStation, toStation, displayDateStr, onSelectClassForBooking, onBackToHome }) {
+export default function SearchResultsPage({ fromStation, toStation, selectedDate, onSelectClassForBooking, onBackToHome }) {
   const { simDate } = useSimulationClock();
   const [selectedQuota, setSelectedQuota] = useState('GENERAL');
   const [filterAcOnly, setFilterAcOnly] = useState(false);
   const [filterAvailableOnly, setFilterAvailableOnly] = useState(true);
   const [filterTimeSlot, setFilterTimeSlot] = useState('ALL');
 
+  // JOURNEY DATE (B0) & SYSTEM TIME (A0) SEPARATION LOGIC
+  // Initial journey date B0 from user search selection
+  const [journeyDate, setJourneyDate] = useState(selectedDate || new Date(2026, 7, 15));
+
+  // DYNAMIC ROLLOVER RULE (A0 >= B0):
+  // When system simDate (A0) reaches or passes journeyDate (B0), automatically roll over B0 to track A0!
+  useEffect(() => {
+    if (!journeyDate) return;
+    const simTimeMs = simDate.getTime();
+    const journeyTimeMs = new Date(journeyDate.getFullYear(), journeyDate.getMonth(), journeyDate.getDate(), 23, 59, 59).getTime();
+
+    if (simTimeMs > journeyTimeMs) {
+      // Roll over journey date B0 to current simDate A0
+      setJourneyDate(new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate()));
+    }
+  }, [simDate, journeyDate]);
+
   const simDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const simMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const activeSimDateStr = `${simDayNames[simDate.getDay()]}, ${simDate.getDate().toString().padStart(2, '0')} ${simMonthNames[simDate.getMonth()]}`;
+  const activeJourneyDateStr = `${simDayNames[journeyDate.getDay()]}, ${journeyDate.getDate().toString().padStart(2, '0')} ${simMonthNames[journeyDate.getMonth()]}`;
 
-  // CHECK IF TRAIN RUNS ON THE CURRENT SIM-DATE DAY OF WEEK
-  // Days string format: "M T W T F S S" or "M - W T - - S"
+  // CHECK IF TRAIN RUNS ON THE JOURNEY DATE (B0) DAY OF WEEK
   const doesTrainRunToday = (trainDaysStr) => {
     if (!trainDaysStr) return true;
-    const dayOfWeek = simDate.getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
-    
-    // Map JS getDay() (0=Sun, 1=Mon...6=Sat) to index in "M T W T F S S" (0=Mon...5=Sat, 6=Sun)
+    const dayOfWeek = journeyDate.getDay();
     const dayIndexMap = [6, 0, 1, 2, 3, 4, 5];
     const targetIdx = dayIndexMap[dayOfWeek];
 
-    // Split string by whitespace: ["M", "-", "W", "T", "-", "-", "S"]
     const dayTokens = trainDaysStr.split(/\s+/);
     if (dayTokens.length >= 7) {
       return dayTokens[targetIdx] !== '-';
@@ -31,26 +44,36 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
     return true;
   };
 
-  // CHECK IF TRAIN HAS DEPARTED RELATIVE TO SIM DATE & TIME TODAY
+  // CHECK IF TRAIN HAS DEPARTED RELATIVE TO SYSTEM TIME (A0) TODAY
   const isTrainDeparted = (train) => {
+    // Only check departure if Journey Date B0 is the same day as System Time A0
+    const isSameDay = simDate.getFullYear() === journeyDate.getFullYear() &&
+                      simDate.getMonth() === journeyDate.getMonth() &&
+                      simDate.getDate() === journeyDate.getDate();
+
+    if (!isSameDay) return false; // Future travel date B0 has not departed!
+
     const simTimeMs = simDate.getTime();
     const trainDeptMs = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), train.deptHour, train.deptMin, 0).getTime();
     return simTimeMs > trainDeptMs;
   };
 
-  // DYNAMIC SEAT BOOKING SIMULATION DRIVEN BY SIM-CLOCK ACCELERATION
+  // DYNAMIC SEAT BOOKING SIMULATION BASED ON DAYS TO DEPARTURE (B0 - A0)
   const getDynamicSeatStatus = (train, clsCode) => {
     if (isTrainDeparted(train)) {
       return { status: 'DEPARTED - BOOKING CLOSED', cnf: 'Departure Passed', color: '#dc2626', avail: false, departed: true };
     }
 
     const baseCount = (train.baseAvail && train.baseAvail[3]) ? train.baseAvail[3] : 42;
-    const baseTime = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate(), 6, 0, 0).getTime();
-    const currentSimTime = simDate.getTime();
-    const simHoursElapsed = Math.max(0, (currentSimTime - baseTime) / (1000 * 60 * 60));
+    
+    // Calculate days to departure (B0 - A0)
+    const journeyTimeMs = new Date(journeyDate.getFullYear(), journeyDate.getMonth(), journeyDate.getDate()).getTime();
+    const simTimeMs = new Date(simDate.getFullYear(), simDate.getMonth(), simDate.getDate()).getTime();
+    const daysToDeparture = Math.max(0, Math.floor((journeyTimeMs - simTimeMs) / (1000 * 60 * 60 * 24)));
 
-    const seatsBooked = Math.floor(simHoursElapsed * 2.5);
-    const currentAvail = baseCount - seatsBooked;
+    // As A0 approaches B0 (daysToDeparture decreases), seat availability depletes
+    const seatsBooked = Math.floor((30 - daysToDeparture) * 1.5);
+    const currentAvail = Math.max(-15, baseCount - seatsBooked);
 
     if (currentAvail > 0) {
       return { status: `AVAILABLE - ${currentAvail.toString().padStart(4, '0')}`, cnf: 'CNF 100% High Chance', color: '#3aa459', avail: true, departed: false };
@@ -104,7 +127,7 @@ export default function SearchResultsPage({ fromStation, toStation, displayDateS
               {fromStation} ➔ {toStation}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              Sim Date: <strong style={{ color: '#0284c7' }}>{activeSimDateStr}</strong> • {filteredTrains.length} Real Trains Running Today
+              Departure Date: <strong style={{ color: '#0284c7' }}>{activeJourneyDateStr}</strong> • {filteredTrains.length} Trains Available
             </div>
           </div>
         </div>

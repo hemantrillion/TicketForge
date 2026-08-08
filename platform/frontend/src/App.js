@@ -37,8 +37,8 @@ function AppContent() {
   // Search Controls
   const [fromStation, setFromStation] = useState('NDLS - New Delhi');
   const [toStation, setToStation] = useState('MMCT - Mumbai Central');
-  const [selectedDate, setSelectedDate] = useState(new Date(2026, 7, 9)); // Sun, 09 Aug 2026
-  const [displayDateStr, setDisplayDateStr] = useState('Sun, 09 Aug');
+  const [selectedDate, setSelectedDate] = useState(new Date(2026, 7, 15)); // B0: Sun, 15 Aug 2026
+  const [displayDateStr, setDisplayDateStr] = useState('Sat, 15 Aug');
 
   // Popover State
   const [showFromDropdown, setShowFromDropdown] = useState(false);
@@ -248,7 +248,7 @@ function AppContent() {
         <SearchResultsPage
           fromStation={fromStation}
           toStation={toStation}
-          displayDateStr={displayDateStr}
+          selectedDate={selectedDate}
           onSelectClassForBooking={handleSelectClassForBooking}
           onBackToHome={() => setCurrentPage('home')}
         />
