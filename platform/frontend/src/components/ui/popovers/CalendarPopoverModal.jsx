@@ -1,16 +1,14 @@
 import React from 'react';
+import CalNavButton from '../buttons/CalNavButton';
 import { useSimulationClock } from '../../../context/SimulationClockContext';
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export default function CalendarPopoverModal({
-  calYear,
-  calMonth,
-  handlePrevMonth,
-  handleNextMonth,
+  calYear, calMonth,
+  handlePrevMonth, handleNextMonth,
   handleSelectCalDate,
-  firstDayIndex,
-  daysInCalMonth,
+  firstDayIndex, daysInCalMonth,
   selectedDate
 }) {
   const { simDate } = useSimulationClock();
@@ -25,29 +23,24 @@ export default function CalendarPopoverModal({
   return (
     <div className="ct-calendar-modal" onClick={(e) => e.stopPropagation()}>
       <div className="ct-cal-header">
-        <button type="button" className="ct-cal-nav" onClick={handlePrevMonth}>‹</button>
-        <div className="ct-cal-title">{MONTH_NAMES[calMonth]} {calYear}</div>
-        <button type="button" className="ct-cal-nav" onClick={handleNextMonth}>›</button>
+        <CalNavButton direction="prev" onClick={handlePrevMonth} />
+        <span>{MONTH_NAMES[calMonth]} {calYear}</span>
+        <CalNavButton direction="next" onClick={handleNextMonth} />
       </div>
-
+      <div className="ct-cal-days">
+        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+      </div>
       <div className="ct-cal-grid">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-          <div key={i} className="ct-cal-day-label">{d}</div>
-        ))}
-
-        {Array.from({ length: firstDayIndex }).map((_, i) => (
-          <div key={`empty-${i}`} className="ct-cal-day empty"></div>
-        ))}
-
-        {Array.from({ length: daysInCalMonth }).map((_, i) => {
-          const dayNum = i + 1;
+        {[...Array(firstDayIndex)].map((_, i) => <div key={`blank-${i}`} />)}
+        {[...Array(daysInCalMonth)].map((_, idx) => {
+          const dayNum = idx + 1;
           const isSelected = selectedDate.getDate() === dayNum && selectedDate.getMonth() === calMonth && selectedDate.getFullYear() === calYear;
           const isPast = isDateInPast(dayNum);
 
           return (
             <div
               key={dayNum}
-              className={`ct-cal-day ${isSelected ? 'selected' : ''}`}
+              className={`ct-cal-date ${isSelected ? 'active' : ''}`}
               onClick={() => {
                 if (!isPast) handleSelectCalDate(dayNum);
               }}
