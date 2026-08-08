@@ -47,16 +47,13 @@ export default function CalendarPopoverModal({
           return (
             <div
               key={dayNum}
-              className={`ct-cal-day ${isSelected ? 'selected' : ''} ${isPast ? 'disabled-past' : ''}`}
+              className={`ct-cal-day ${isSelected ? 'selected' : ''}`}
               onClick={() => {
                 if (!isPast) handleSelectCalDate(dayNum);
               }}
               style={{
                 opacity: isPast ? 0.35 : 1,
-                cursor: isPast ? 'not-allowed' : 'pointer',
-                background: isSelected ? '#3aa459' : (isPast ? '#f1f5f9' : 'transparent'),
-                color: isSelected ? '#ffffff' : (isPast ? '#94a3b8' : '#0f172a'),
-                fontWeight: isSelected ? 900 : 700
+                cursor: isPast ? 'not-allowed' : 'pointer'
               }}
             >
               {dayNum}
